@@ -1,0 +1,1 @@
+/usr/bin/clang++ -g CMakeFiles/producer.dir/src/producer.cpp.o CMakeFiles/producer.dir/src/shm_provider.cpp.o -o producer  -lpthread -lrt 

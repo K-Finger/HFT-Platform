@@ -1,0 +1,26 @@
+[
+{
+  "directory": "/home/kieranf/hft-platform/build",
+  "command": "/usr/bin/clang++  -I/home/kieranf/hft-platform/include -g -std=gnu++20 -o CMakeFiles/producer.dir/src/producer.cpp.o -c /home/kieranf/hft-platform/src/producer.cpp",
+  "file": "/home/kieranf/hft-platform/src/producer.cpp",
+  "output": "CMakeFiles/producer.dir/src/producer.cpp.o"
+},
+{
+  "directory": "/home/kieranf/hft-platform/build",
+  "command": "/usr/bin/clang++  -I/home/kieranf/hft-platform/include -g -std=gnu++20 -o CMakeFiles/producer.dir/src/shm_provider.cpp.o -c /home/kieranf/hft-platform/src/shm_provider.cpp",
+  "file": "/home/kieranf/hft-platform/src/shm_provider.cpp",
+  "output": "CMakeFiles/producer.dir/src/shm_provider.cpp.o"
+},
+{
+  "directory": "/home/kieranf/hft-platform/build",
+  "command": "/usr/bin/clang++  -I/home/kieranf/hft-platform/include -g -std=gnu++20 -o CMakeFiles/consumer.dir/src/consumer.cpp.o -c /home/kieranf/hft-platform/src/consumer.cpp",
+  "file": "/home/kieranf/hft-platform/src/consumer.cpp",
+  "output": "CMakeFiles/consumer.dir/src/consumer.cpp.o"
+},
+{
+  "directory": "/home/kieranf/hft-platform/build",
+  "command": "/usr/bin/clang++  -I/home/kieranf/hft-platform/include -g -std=gnu++20 -o CMakeFiles/consumer.dir/src/shm_provider.cpp.o -c /home/kieranf/hft-platform/src/shm_provider.cpp",
+  "file": "/home/kieranf/hft-platform/src/shm_provider.cpp",
+  "output": "CMakeFiles/consumer.dir/src/shm_provider.cpp.o"
+}
+]

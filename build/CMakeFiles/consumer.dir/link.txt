@@ -1,0 +1,1 @@
+/usr/bin/clang++ -g CMakeFiles/consumer.dir/src/consumer.cpp.o CMakeFiles/consumer.dir/src/shm_provider.cpp.o -o consumer  -lpthread -lrt 
