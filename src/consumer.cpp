@@ -1,8 +1,8 @@
-#include "shm_ring.hpp"
-#include "shm_provider.hpp"
-#include "thread_utils.hpp"
-#include "tsc.hpp"
-#include "order_book.hpp"
+#include <cstdio>
+#include "feed/shm_ring.hpp"
+#include "feed/shm_provider.hpp"
+#include "utils/thread_utils.hpp"
+#include "utils/tsc.hpp"
 
 int main()
 {
@@ -14,7 +14,6 @@ int main()
         return 1;
 
     LatencyHistogram hist;
-    OrderBook book;
     uint64_t count = 0;
     Message msg;
 
@@ -27,8 +26,8 @@ int main()
             hist.record(t1 - t0);
             count++;
 
-            book.update(msg);
-            book.print();
+            double mid = (msg.bid_price + msg.ask_price) / 2.0;
+            printf("mid=%.2f bid=%.2f ask=%.2f\n", mid, msg.bid_price, msg.ask_price);
 
             if (count % 50 == 0)
             {
@@ -39,7 +38,7 @@ int main()
         }
         else
         {
-            __builtin_ia32_pause(); // Tell CPU we're spinning
+            __builtin_ia32_pause();
         }
     }
 }

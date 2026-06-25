@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <atomic>
 
-#include "types.hpp"
+#include "core/types.hpp"
 
 struct RingBuffer
 {
