@@ -3,7 +3,7 @@
     This is used to profile our code performance. */
 
 #pragma once
-#include <stdint.h>
+#include <cstdint>
 #include <cstdio>
 
 struct LatencyHistogram

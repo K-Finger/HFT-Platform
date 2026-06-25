@@ -2,6 +2,7 @@
 #include "shm_provider.hpp"
 #include "thread_utils.hpp"
 #include "tsc.hpp"
+#include "order_book.hpp"
 
 int main()
 {
@@ -13,6 +14,7 @@ int main()
         return 1;
 
     LatencyHistogram hist;
+    OrderBook book;
     uint64_t count = 0;
     Message msg;
 
@@ -25,9 +27,8 @@ int main()
             hist.record(t1 - t0);
             count++;
 
-            double spread = msg.ask_price - msg.bid_price;
-            printf("bid=%.2f ask=%.2f spread=%.2f ts=%llu\n",
-                   msg.bid_price, msg.ask_price, spread, msg.timestamp);
+            book.update(msg);
+            book.print();
 
             if (count % 50 == 0)
             {
