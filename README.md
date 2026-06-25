@@ -114,3 +114,8 @@ The completed implementation must be benchmarked using custom high-resolution mi
 3.  Phase 2 Focus: Generate the corresponding unsafe Rust architecture to bind directly to the specified C++ memory layout layout cleanly.
 # HFT-Platform
 # HFT-Platform
+
+
+
+COOL SITE
+hftuniversity.com

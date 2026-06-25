@@ -3,8 +3,12 @@
 #include <chrono>
 
 #include "shm_provider.hpp"
+#include "thread_utils.hpp"
 
 int main() {
+    pin_thread_to_core(2); // producer core
+    set_realtime(80); // high prio
+
     RingBuffer* ring = open_shared_memory(true);
     if (ring == nullptr) exit(1);
 

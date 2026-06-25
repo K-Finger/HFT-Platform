@@ -5,11 +5,11 @@
 #include <cstdlib>
 #include "shm_ring.hpp"
 
-RingBuffer* open_shared_memory(bool create) 
+RingBuffer *open_shared_memory(bool create)
 {
     int flags = create ? O_CREAT | O_RDWR : O_RDWR;
 
-    // Open file. 
+    // Open file.
     // If it doesn't exist then create it where anyone can read/write to it
     int fd = shm_open("/hft_ring", flags, 0666);
     if (fd == -1)
@@ -17,22 +17,18 @@ RingBuffer* open_shared_memory(bool create)
         exit(1);
     }
 
-    if (create) ftruncate(fd, sizeof(RingBuffer));
+    if (create)
+        ftruncate(fd, sizeof(RingBuffer));
 
-    // Get a pointer to a shared memory mapping where..
-    // Kernal picks the location
-    // It can be read and written to
-    // Mapping is shared
-    // Using file descriptor at 0 offset
-    void* ptr = mmap(
-        nullptr,
-        sizeof(RingBuffer), 
-        PROT_READ | PROT_WRITE, 
-        MAP_SHARED, 
-        fd, 
-        0
-    );
+    void *ptr = mmap(nullptr, sizeof(RingBuffer), PROT_READ | PROT_WRITE,
+                     MAP_SHARED | MAP_HUGETLB | MAP_HUGE_2MB | MAP_POPULATE, fd, 0);
+
+    if (ptr == MAP_FAILED)
+    {
+        ptr = mmap(nullptr, sizeof(RingBuffer), PROT_READ | PROT_WRITE,
+                   MAP_SHARED | MAP_POPULATE, fd, 0);
+    }
 
     close(fd);
-    return static_cast<RingBuffer*>(ptr);
+    return static_cast<RingBuffer *>(ptr);
 }

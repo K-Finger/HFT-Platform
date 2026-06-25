@@ -2,6 +2,7 @@
 #define SHM_RING_HPP
 
 #include <cstdint>
+#include <cstddef>
 #include <atomic>
 
 struct alignas(64) Message
@@ -11,6 +12,12 @@ struct alignas(64) Message
     std::uint8_t side; // buy = 0, sell = 1
     std::uint64_t timestamp; // nanoseconds
 };
+
+static_assert(sizeof(Message) == 64, "Message must be 64 bytes");
+static_assert(offsetof(Message, price) == 0, "price offset wrong");
+static_assert(offsetof(Message, qty) == 8, "qty offset wrong");
+static_assert(offsetof(Message, side) == 12, "side offset wrong");
+static_assert(offsetof(Message, timestamp) == 16, "timestamp offset wrong");
 
 struct RingBuffer
 {
