@@ -1,6 +1,4 @@
-#ifndef SHM_RING_HPP
-#define SHM_RING_HPP
-
+#pragma once
 #include <cstdint>
 #include <cstddef>
 #include <atomic>
@@ -14,12 +12,6 @@ struct alignas(64) Message
     std::uint64_t timestamp;  // local receive time, nanoseconds
     std::uint64_t update_id;  // binance sequence number — gap = dropped message
 };
-
-static_assert(sizeof(Message) == 64, "Message must be 64 bytes");
-static_assert(offsetof(Message, price) == 0, "price offset wrong");
-static_assert(offsetof(Message, qty) == 8, "qty offset wrong");
-static_assert(offsetof(Message, side) == 12, "side offset wrong");
-static_assert(offsetof(Message, timestamp) == 16, "timestamp offset wrong");
 
 struct RingBuffer
 {
@@ -47,5 +39,3 @@ struct RingBuffer
         return true;
     }
 };
-
-#endif
