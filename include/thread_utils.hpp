@@ -1,6 +1,4 @@
-#ifndef THREAD_UTILS_HPP
-#define THREAD_UTILS_HPP
-
+#pragma once
 #include <pthread.h>
 #include <sched.h>
 #include <cstdio>
@@ -18,5 +16,3 @@ inline void set_realtime(int priority) {
     int ret = pthread_setschedparam(pthread_self(), SCHED_FIFO, &sp);
     if (ret != 0) perror("perror_setschedparam"); // continue with normal scheduling
 }
-
-#endif
