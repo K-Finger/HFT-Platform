@@ -7,10 +7,12 @@
 
 struct alignas(64) Message
 {
-    double price;
-    std::uint32_t qty;
-    std::uint8_t side; // buy = 0, sell = 1
-    std::uint64_t timestamp; // nanoseconds
+    double bid_price;
+    double ask_price;
+    double bid_qty;
+    double ask_qty;
+    std::uint64_t timestamp;  // local receive time, nanoseconds
+    std::uint64_t update_id;  // binance sequence number — gap = dropped message
 };
 
 static_assert(sizeof(Message) == 64, "Message must be 64 bytes");
