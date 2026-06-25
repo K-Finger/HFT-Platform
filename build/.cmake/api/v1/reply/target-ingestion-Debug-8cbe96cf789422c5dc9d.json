@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "producer"
+			"path" : "ingestion"
 		}
 	],
 	"backtrace" : 1,
@@ -26,19 +26,19 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 7,
+				"line" : 10,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 19,
+				"line" : 15,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 18,
+				"line" : 14,
 				"parent" : 0
 			}
 		]
@@ -50,6 +50,17 @@
 			[
 				{
 					"fragment" : "-g -std=gnu++20"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_SYSTEM_DYN_LINK"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_SYSTEM_NO_LIB"
 				}
 			],
 			"includes" : 
@@ -75,7 +86,7 @@
 			]
 		}
 	],
-	"id" : "producer::@6890427a1f51a3e7e1df",
+	"id" : "ingestion::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -90,6 +101,21 @@
 			},
 			{
 				"backtrace" : 2,
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libboost_system.so.1.83.0",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libssl.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libcrypto.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
 				"fragment" : "-lpthread",
 				"role" : "libraries"
 			},
@@ -101,8 +127,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "producer",
-	"nameOnDisk" : "producer",
+	"name" : "ingestion",
+	"nameOnDisk" : "ingestion",
 	"paths" : 
 	{
 		"build" : ".",
@@ -124,7 +150,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "src/producer.cpp",
+			"path" : "src/ingestion.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

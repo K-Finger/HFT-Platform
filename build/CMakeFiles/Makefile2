@@ -63,6 +63,7 @@ CMAKE_BINARY_DIR = /home/kieranf/hft-platform/build
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
+all: CMakeFiles/ingestion.dir/all
 all: CMakeFiles/producer.dir/all
 all: CMakeFiles/consumer.dir/all
 .PHONY : all
@@ -72,9 +73,36 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
+clean: CMakeFiles/ingestion.dir/clean
 clean: CMakeFiles/producer.dir/clean
 clean: CMakeFiles/consumer.dir/clean
 .PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/ingestion.dir
+
+# All Build rule for target.
+CMakeFiles/ingestion.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ingestion.dir/build.make CMakeFiles/ingestion.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ingestion.dir/build.make CMakeFiles/ingestion.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/kieranf/hft-platform/build/CMakeFiles --progress-num=4,5,6 "Built target ingestion"
+.PHONY : CMakeFiles/ingestion.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/ingestion.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/kieranf/hft-platform/build/CMakeFiles 3
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/ingestion.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/kieranf/hft-platform/build/CMakeFiles 0
+.PHONY : CMakeFiles/ingestion.dir/rule
+
+# Convenience name for target.
+ingestion: CMakeFiles/ingestion.dir/rule
+.PHONY : ingestion
+
+# clean rule for target.
+CMakeFiles/ingestion.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ingestion.dir/build.make CMakeFiles/ingestion.dir/clean
+.PHONY : CMakeFiles/ingestion.dir/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/producer.dir
@@ -83,7 +111,7 @@ clean: CMakeFiles/consumer.dir/clean
 CMakeFiles/producer.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/producer.dir/build.make CMakeFiles/producer.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/producer.dir/build.make CMakeFiles/producer.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/kieranf/hft-platform/build/CMakeFiles --progress-num=4,5,6 "Built target producer"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/kieranf/hft-platform/build/CMakeFiles --progress-num=7,8,9 "Built target producer"
 .PHONY : CMakeFiles/producer.dir/all
 
 # Build rule for subdir invocation for target.

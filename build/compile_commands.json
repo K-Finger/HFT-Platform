@@ -1,6 +1,18 @@
 [
 {
   "directory": "/home/kieranf/hft-platform/build",
+  "command": "/usr/bin/clang++ -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB -I/home/kieranf/hft-platform/include -g -std=gnu++20 -o CMakeFiles/ingestion.dir/src/ingestion.cpp.o -c /home/kieranf/hft-platform/src/ingestion.cpp",
+  "file": "/home/kieranf/hft-platform/src/ingestion.cpp",
+  "output": "CMakeFiles/ingestion.dir/src/ingestion.cpp.o"
+},
+{
+  "directory": "/home/kieranf/hft-platform/build",
+  "command": "/usr/bin/clang++ -DBOOST_SYSTEM_DYN_LINK -DBOOST_SYSTEM_NO_LIB -I/home/kieranf/hft-platform/include -g -std=gnu++20 -o CMakeFiles/ingestion.dir/src/shm_provider.cpp.o -c /home/kieranf/hft-platform/src/shm_provider.cpp",
+  "file": "/home/kieranf/hft-platform/src/shm_provider.cpp",
+  "output": "CMakeFiles/ingestion.dir/src/shm_provider.cpp.o"
+},
+{
+  "directory": "/home/kieranf/hft-platform/build",
   "command": "/usr/bin/clang++  -I/home/kieranf/hft-platform/include -g -std=gnu++20 -o CMakeFiles/producer.dir/src/producer.cpp.o -c /home/kieranf/hft-platform/src/producer.cpp",
   "file": "/home/kieranf/hft-platform/src/producer.cpp",
   "output": "CMakeFiles/producer.dir/src/producer.cpp.o"

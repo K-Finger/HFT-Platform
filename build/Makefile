@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named ingestion
+
+# Build rule for target.
+ingestion: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ingestion
+.PHONY : ingestion
+
+# fast build rule for target.
+ingestion/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ingestion.dir/build.make CMakeFiles/ingestion.dir/build
+.PHONY : ingestion/fast
+
+#=============================================================================
 # Target rules for targets named producer
 
 # Build rule for target.
@@ -166,6 +179,30 @@ src/consumer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/consumer.dir/build.make CMakeFiles/consumer.dir/src/consumer.cpp.s
 .PHONY : src/consumer.cpp.s
 
+src/ingestion.o: src/ingestion.cpp.o
+.PHONY : src/ingestion.o
+
+# target to build an object file
+src/ingestion.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ingestion.dir/build.make CMakeFiles/ingestion.dir/src/ingestion.cpp.o
+.PHONY : src/ingestion.cpp.o
+
+src/ingestion.i: src/ingestion.cpp.i
+.PHONY : src/ingestion.i
+
+# target to preprocess a source file
+src/ingestion.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ingestion.dir/build.make CMakeFiles/ingestion.dir/src/ingestion.cpp.i
+.PHONY : src/ingestion.cpp.i
+
+src/ingestion.s: src/ingestion.cpp.s
+.PHONY : src/ingestion.s
+
+# target to generate assembly for a file
+src/ingestion.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ingestion.dir/build.make CMakeFiles/ingestion.dir/src/ingestion.cpp.s
+.PHONY : src/ingestion.cpp.s
+
 src/producer.o: src/producer.cpp.o
 .PHONY : src/producer.o
 
@@ -195,6 +232,7 @@ src/shm_provider.o: src/shm_provider.cpp.o
 
 # target to build an object file
 src/shm_provider.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ingestion.dir/build.make CMakeFiles/ingestion.dir/src/shm_provider.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/producer.dir/build.make CMakeFiles/producer.dir/src/shm_provider.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/consumer.dir/build.make CMakeFiles/consumer.dir/src/shm_provider.cpp.o
 .PHONY : src/shm_provider.cpp.o
@@ -204,6 +242,7 @@ src/shm_provider.i: src/shm_provider.cpp.i
 
 # target to preprocess a source file
 src/shm_provider.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ingestion.dir/build.make CMakeFiles/ingestion.dir/src/shm_provider.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/producer.dir/build.make CMakeFiles/producer.dir/src/shm_provider.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/consumer.dir/build.make CMakeFiles/consumer.dir/src/shm_provider.cpp.i
 .PHONY : src/shm_provider.cpp.i
@@ -213,6 +252,7 @@ src/shm_provider.s: src/shm_provider.cpp.s
 
 # target to generate assembly for a file
 src/shm_provider.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ingestion.dir/build.make CMakeFiles/ingestion.dir/src/shm_provider.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/producer.dir/build.make CMakeFiles/producer.dir/src/shm_provider.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/consumer.dir/build.make CMakeFiles/consumer.dir/src/shm_provider.cpp.s
 .PHONY : src/shm_provider.cpp.s
@@ -226,10 +266,14 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... consumer"
+	@echo "... ingestion"
 	@echo "... producer"
 	@echo "... src/consumer.o"
 	@echo "... src/consumer.i"
 	@echo "... src/consumer.s"
+	@echo "... src/ingestion.o"
+	@echo "... src/ingestion.i"
+	@echo "... src/ingestion.s"
 	@echo "... src/producer.o"
 	@echo "... src/producer.i"
 	@echo "... src/producer.s"
