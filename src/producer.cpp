@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <chrono>
 
+#include "shm_ring.hpp"
 #include "shm_provider.hpp"
 
 int main() {

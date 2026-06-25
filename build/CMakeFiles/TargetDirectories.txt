@@ -1,5 +1,0 @@
-/home/kieranf/hft-platform/build/CMakeFiles/ingestion.dir
-/home/kieranf/hft-platform/build/CMakeFiles/producer.dir
-/home/kieranf/hft-platform/build/CMakeFiles/consumer.dir
-/home/kieranf/hft-platform/build/CMakeFiles/edit_cache.dir
-/home/kieranf/hft-platform/build/CMakeFiles/rebuild_cache.dir
