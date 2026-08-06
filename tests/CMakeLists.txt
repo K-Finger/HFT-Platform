@@ -25,6 +25,12 @@ add_executable(hft_ipc_tests
 target_link_libraries(hft_ipc_tests PRIVATE hft::ipc GTest::gtest_main)
 gtest_discover_tests(hft_ipc_tests)
 
+add_executable(hft_book_tests
+    book_tests.cpp
+)
+target_link_libraries(hft_book_tests PRIVATE hft::book GTest::gtest_main)
+gtest_discover_tests(hft_book_tests)
+
 add_executable(hft_capture_tests
     capture_tests.cpp
 )
