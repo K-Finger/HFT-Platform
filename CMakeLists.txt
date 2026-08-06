@@ -45,6 +45,16 @@ add_library(hft::ipc ALIAS hft_ipc)
 target_link_libraries(hft_ipc PUBLIC hft_core rt)
 hft_apply_target_options(hft_ipc)
 
+# ── hft::capture — capture file writer and mmap reader ───────────────────────
+add_library(hft_capture STATIC
+    src/capture/capture_reader.cpp
+    src/capture/capture_writer.cpp
+)
+add_library(hft::capture ALIAS hft_capture)
+
+target_link_libraries(hft_capture PUBLIC hft_core)
+hft_apply_target_options(hft_capture)
+
 # ── hft::feed — exchange websocket client and wire parsers ───────────────────
 find_package(Boost REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -64,10 +74,9 @@ target_link_libraries(hft_feed PUBLIC
 target_compile_definitions(hft_feed PUBLIC BOOST_ASIO_NO_DEPRECATED)
 hft_apply_target_options(hft_feed)
 
-set(HFT_LIBRARY_TARGETS hft_core hft_ipc hft_feed)
+set(HFT_LIBRARY_TARGETS hft_core hft_ipc hft_capture hft_feed)
 
 if(HFT_BUILD_APPS)
-    add_subdirectory(lib)
     add_subdirectory(apps)
 endif()
 

@@ -1,5 +1,7 @@
 #include "hft/ipc/shared_memory.hpp"
 
+#include "hft/sys/scoped_descriptor.hpp"
+
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -12,23 +14,6 @@ namespace hft::ipc
 {
 namespace
 {
-
-/* Closes the descriptor once the ring is mapped, including on the throw path.
-   The mapping outlives the descriptor. */
-class ScopedDescriptor
-{
-  public:
-    explicit ScopedDescriptor(int fd) : fd_(fd) {}
-    ~ScopedDescriptor() { close(fd_); }
-
-    ScopedDescriptor(const ScopedDescriptor&)            = delete;
-    ScopedDescriptor& operator=(const ScopedDescriptor&) = delete;
-
-    int get() const { return fd_; }
-
-  private:
-    int fd_;
-};
 
 std::system_error shm_error(int error_number, const std::string& what)
 {
@@ -63,7 +48,7 @@ SpscRing* create_shared_ring()
     if (fd == -1)
         throw shm_error(errno, "shm_open(O_CREAT | O_RDWR) failed");
 
-    const ScopedDescriptor descriptor(fd);
+    const sys::ScopedDescriptor descriptor(fd);
     if (ftruncate(descriptor.get(), sizeof(SpscRing)) == -1)
         throw shm_error(errno, "ftruncate failed");
 
@@ -76,7 +61,7 @@ SpscRing* open_shared_ring()
     if (fd == -1)
         throw shm_error(errno, "shm_open(O_RDWR) failed, the producer must create the ring first");
 
-    const ScopedDescriptor descriptor(fd);
+    const sys::ScopedDescriptor descriptor(fd);
     return map_ring(descriptor.get());
 }
 
