@@ -45,6 +45,18 @@ add_library(hft::ipc ALIAS hft_ipc)
 target_link_libraries(hft_ipc PUBLIC hft_core rt)
 hft_apply_target_options(hft_ipc)
 
+# ── orderbook — vendored matching engine submodule ───────────────────────────
+add_subdirectory(lib)
+
+# ── hft::book — snapshot driven limit order book ─────────────────────────────
+add_library(hft_book STATIC
+    src/book/snapshot_book.cpp
+)
+add_library(hft::book ALIAS hft_book)
+
+target_link_libraries(hft_book PUBLIC hft_core orderbook)
+hft_apply_target_options(hft_book)
+
 # ── hft::capture — capture file writer and mmap reader ───────────────────────
 add_library(hft_capture STATIC
     src/capture/capture_reader.cpp
@@ -74,7 +86,7 @@ target_link_libraries(hft_feed PUBLIC
 target_compile_definitions(hft_feed PUBLIC BOOST_ASIO_NO_DEPRECATED)
 hft_apply_target_options(hft_feed)
 
-set(HFT_LIBRARY_TARGETS hft_core hft_ipc hft_capture hft_feed)
+set(HFT_LIBRARY_TARGETS hft_core hft_ipc hft_capture hft_feed hft_book orderbook)
 
 if(HFT_BUILD_APPS)
     add_subdirectory(apps)
