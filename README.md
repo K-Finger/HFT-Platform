@@ -23,6 +23,8 @@ the whole platform.
   cache-line aligned POD. No JSON document, no intermediate object.
 - **Reproducible replay.** Record raw frames to a capture file, then replay them
   through the same parser and ring at full speed. Fixed input, comparable numbers.
+- **Live order book.** Snapshots drive a limit order book through integer ticks,
+  with best bid and offer, spread and size-weighted microprice on the read side.
 - **Latency-critical OS setup.** Core pinning and real-time priority that fail
   loudly instead of running unpinned and reporting meaningless numbers.
 - **TSC instrumentation.** `rdtsc` reads and a power-of-two histogram cheap enough
@@ -40,6 +42,9 @@ and librt.
 
 `hft::capture` — `CaptureWriter` and the mmapped `CaptureReader` behind the replay
 harness. Depends on `hft::core`.
+
+`hft::book` — `SnapshotBook`, `TopOfBook` and the `TickScale` integer boundary.
+Depends on `hft::core` and the vendored order book submodule.
 
 `hft::feed` — `WebSocketFeed` and `parse_book_ticker`. Depends on `hft::core`,
 Boost and OpenSSL.
@@ -67,6 +72,7 @@ Downstream may allocate and fall behind — a slow consumer only fills the ring.
 include/hft/         Public headers, the only thing consumers include
 ├── core/            Message POD, version
 ├── ipc/             SPSC ring, shared memory mapping
+├── book/            Snapshot driven order book, top of book, tick scale
 ├── capture/         Capture file format, writer, mmap reader
 ├── feed/            Exchange websocket client, wire parsers
 ├── sys/             Core pinning, real-time scheduling, descriptor guard
@@ -74,7 +80,7 @@ include/hft/         Public headers, the only thing consumers include
 src/                 Implementation, mirrors include/hft
 apps/                Runnable processes built on the library
 ├── ingestion/       Producer: websocket to shared memory
-├── consumer/        Consumer: shared memory to stdout plus latency report
+├── consumer/        Consumer: ring into the order book plus latency report
 ├── recorder/        Writes raw frames to a capture file
 └── replay/          Replays a capture through the parser into the ring
 tests/               GoogleTest unit tests, one binary per module
@@ -201,6 +207,7 @@ Methodology and the numbers to record live in
 
 - [Architecture](docs/ARCHITECTURE.md) — component design and latency budget
 - [Ingestion](docs/ingestion.md) — the latency-critical path in detail
+- [Order book](docs/book.md) — snapshots into orders, integer ticks, book cost
 - [Replay](docs/replay.md) — recording and replaying captures for reproducible
   numbers
 - [User guide](docs/user_guide.md) — build, host tuning, running the apps

@@ -59,6 +59,23 @@ pages in at startup instead of during the first trade. Operators must reserve hu
 pages, so the mapping falls back to 4KB pages when none exist, and fails hard when
 even that mapping cannot be made.
 
+## hft::book — the read side
+
+bookTicker sends state, a matching engine consumes events, so `SnapshotBook`
+applies each frame as a replace: cancel the two synthetic quotes left by the
+previous frame, insert quotes at the new bid and ask. The book then holds a
+matchable two-level view, and `TopOfBook` carries the BBO for readers that need
+only a price.
+
+`TickScale` converts the feed's doubles into integer ticks and size units once, at
+this boundary. Downstream sees only integers, which compare exactly and are what a
+hardware risk path can consume.
+
+The vendored book allocates per order, so this is the one component whose cost is
+measured in hundreds of nanoseconds rather than tens. `consumer` histograms the
+ring hop and the book update separately for exactly that reason.
+[book.md](book.md) covers the trade-off.
+
 ## hft::feed — the exchange side
 
 `WebSocketFeed` owns one blocking TLS websocket connection, driven by the pinned
@@ -76,8 +93,12 @@ so the timestamp measures arrival rather than parse cost.
 `ingestion` pins itself, creates the ring, connects the feed and pushes. It is the
 only writer.
 
-`consumer` pins itself to a different core, opens the ring, pops, and records the
-pop cost into the histogram.
+`consumer` pins itself to a different core, opens the ring, pops into the order
+book, and histograms the pop and the book update separately.
+
+`recorder` and `replay` are the capture harness: one writes raw frames to a file
+over its own connection, the other pushes a file through the live parser into the
+ring at full speed. [replay.md](replay.md) covers both.
 
 Neither app holds logic worth testing. All of it lives in the library modules.
 
