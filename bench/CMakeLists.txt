@@ -12,12 +12,18 @@ set(HFT_BENCH_SOURCES
     spsc_ring_bench.cpp
     tsc_bench.cpp
     book_ticker_parser_bench.cpp
+    capture_replay_bench.cpp
 )
 
 foreach(bench_source ${HFT_BENCH_SOURCES})
     get_filename_component(bench_name ${bench_source} NAME_WE)
     add_executable(${bench_name} ${bench_source})
-    target_link_libraries(${bench_name} PRIVATE hft::feed hft::ipc benchmark::benchmark_main)
+    target_link_libraries(${bench_name} PRIVATE
+        hft::capture
+        hft::feed
+        hft::ipc
+        benchmark::benchmark_main
+    )
     target_include_directories(${bench_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     hft_apply_target_options(${bench_name})
 endforeach()
