@@ -21,7 +21,8 @@ inline void pin_to_core(int core_id)
     const int rc = pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpu_set);
     if (rc != 0)
         throw std::system_error(rc, std::generic_category(),
-                                "pthread_setaffinity_np failed for core " + std::to_string(core_id));
+                                "pthread_setaffinity_np failed for core " +
+                                    std::to_string(core_id));
 }
 
 /* Moves the calling thread onto SCHED_FIFO so the kernel cannot preempt it for

@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 
-#include <cstdio>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <stdexcept>
@@ -25,7 +25,8 @@ class Capture : public ::testing::Test
     void SetUp() override
     {
         const char* test_name = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-        path = (std::filesystem::temp_directory_path() / ("hft_capture_" + std::string(test_name) + ".hftc"))
+        path                  = (std::filesystem::temp_directory_path() /
+                ("hft_capture_" + std::string(test_name) + ".hftc"))
                    .string();
         std::filesystem::remove(path);
     }
@@ -109,7 +110,8 @@ TEST_F(Capture, RecordHeadersStayEightByteAligned)
     {
         CaptureWriter writer(path);
         for (int i = 0; i < 64; i++)
-            writer.append(static_cast<std::uint64_t>(i), std::string(static_cast<std::size_t>(i) + 1, 'a'));
+            writer.append(static_cast<std::uint64_t>(i),
+                          std::string(static_cast<std::size_t>(i) + 1, 'a'));
         writer.close();
     }
 
@@ -119,10 +121,11 @@ TEST_F(Capture, RecordHeadersStayEightByteAligned)
     std::uint64_t expected = 0;
     for (const CaptureRecord& record : reader)
     {
+        const auto header_address = reinterpret_cast<std::uintptr_t>(record.payload) -
+                                    sizeof(hft::capture::RecordHeader);
+
         EXPECT_EQ(record.timestamp_ns, expected);
-        EXPECT_EQ(reinterpret_cast<std::uintptr_t>(record.payload - sizeof(hft::capture::RecordHeader)) %
-                      hft::capture::kRecordAlignment,
-                  0u);
+        EXPECT_EQ(header_address % hft::capture::kRecordAlignment, 0u);
         expected++;
     }
 }

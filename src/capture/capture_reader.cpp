@@ -42,7 +42,8 @@ CaptureReader::CaptureReader(const std::string& path) : path_(path)
 {
     const int fd = open(path_.c_str(), O_RDONLY);
     if (fd == -1)
-        throw std::system_error(errno, std::generic_category(), "open(O_RDONLY) failed for " + path_);
+        throw std::system_error(errno, std::generic_category(),
+                                "open(O_RDONLY) failed for " + path_);
 
     const sys::ScopedDescriptor descriptor(fd);
     size_bytes_ = file_size(descriptor.get(), path_);
@@ -57,7 +58,16 @@ CaptureReader::CaptureReader(const std::string& path) : path_(path)
         throw std::system_error(errno, std::generic_category(), "mmap failed for " + path_);
 
     base_ = static_cast<const std::byte*>(mapping);
-    validate();
+
+    try
+    {
+        validate();
+    }
+    catch (...)
+    {
+        munmap(mapping, size_bytes_);  // the destructor never runs for a failed constructor
+        throw;
+    }
 }
 
 CaptureReader::~CaptureReader()
