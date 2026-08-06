@@ -13,12 +13,14 @@ set(HFT_BENCH_SOURCES
     tsc_bench.cpp
     book_ticker_parser_bench.cpp
     capture_replay_bench.cpp
+    book_bench.cpp
 )
 
 foreach(bench_source ${HFT_BENCH_SOURCES})
     get_filename_component(bench_name ${bench_source} NAME_WE)
     add_executable(${bench_name} ${bench_source})
     target_link_libraries(${bench_name} PRIVATE
+        hft::book
         hft::capture
         hft::feed
         hft::ipc
