@@ -1,6 +1,9 @@
-/* Consumer process: pinned thread draining the ring and reporting the cycle cost
-   of each pop, which is the latency a strategy would pay to see an update. */
+/* Consumer process: pinned thread draining the ring into the order book.
 
+   Two histograms rather than one, because the ring hop and the book update are
+   separate costs with separate fixes. */
+
+#include "hft/book/snapshot_book.hpp"
 #include "hft/ipc/shared_memory.hpp"
 #include "hft/sys/affinity.hpp"
 #include "hft/time/latency_histogram.hpp"
@@ -17,6 +20,24 @@ constexpr int           kConsumerCore     = 3;
 constexpr int           kRealtimePriority = 80;
 constexpr std::uint64_t kReportInterval   = 50;
 
+void report(const hft::book::SnapshotBook&     book,
+            const hft::time::LatencyHistogram& pop_cycles,
+            const hft::time::LatencyHistogram& apply_cycles)
+{
+    std::printf("\napplied=%llu stale=%llu crossed=%llu trades=%llu filled_quotes=%llu\n",
+                static_cast<unsigned long long>(book.applied_count()),
+                static_cast<unsigned long long>(book.stale_count()),
+                static_cast<unsigned long long>(book.crossed_count()),
+                static_cast<unsigned long long>(book.trade_count()),
+                static_cast<unsigned long long>(book.filled_quote_count()));
+
+    std::printf("--- ring pop cycles ---\n");
+    pop_cycles.print();
+    std::printf("--- book apply cycles ---\n");
+    apply_cycles.print();
+    std::printf("\n");
+}
+
 }  // namespace
 
 int main()
@@ -28,28 +49,33 @@ int main()
 
         hft::ipc::SpscRing* ring = hft::ipc::open_shared_ring();
 
-        hft::time::LatencyHistogram histogram;
+        hft::book::SnapshotBook     book(hft::book::kUsdtPairScale);
+        hft::time::LatencyHistogram pop_cycles;
+        hft::time::LatencyHistogram apply_cycles;
         hft::Message                msg{};
 
         while (true)
         {
-            const std::uint64_t start = hft::time::rdtsc();
+            const std::uint64_t pop_start = hft::time::rdtsc();
             if (!ring->pop(msg))
             {
                 __builtin_ia32_pause();  // spin without starving the sibling hyperthread
                 continue;
             }
-            histogram.record(hft::time::rdtsc() - start);
+            const std::uint64_t popped = hft::time::rdtsc();
+            pop_cycles.record(popped - pop_start);
 
-            const double mid = (msg.bid_price + msg.ask_price) / 2.0;
-            std::printf("mid=%.2f bid=%.2f ask=%.2f\n", mid, msg.bid_price, msg.ask_price);
+            book.apply(msg);
+            apply_cycles.record(hft::time::rdtsc() - popped);
 
-            if (histogram.total % kReportInterval == 0)
-            {
-                std::printf("\n--- latency histogram (pop cycles) ---\n");
-                histogram.print();
-                std::printf("--------------------------------------\n\n");
-            }
+            const hft::book::TopOfBook& top = book.top();
+            std::printf("bid=%.2f ask=%.2f spread=%lld micro=%.4f\n",
+                        hft::book::kUsdtPairScale.price_from_ticks(top.bid_ticks),
+                        hft::book::kUsdtPairScale.price_from_ticks(top.ask_ticks),
+                        static_cast<long long>(top.spread_ticks()), top.microprice_ticks());
+
+            if (pop_cycles.total % kReportInterval == 0)
+                report(book, pop_cycles, apply_cycles);
         }
     }
     catch (const std::exception& error)
