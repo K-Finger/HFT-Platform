@@ -1,0 +1,10 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(Threads)
+find_dependency(Boost)
+find_dependency(OpenSSL)
+
+include("${CMAKE_CURRENT_LIST_DIR}/hftTargets.cmake")
+
+check_required_components(hft)

@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        build_type: [Release, Debug]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libboost-dev libssl-dev
+
+      # Apps are skipped: they link the order-book submodule and need a pinned
+      # core plus CAP_SYS_NICE, which a shared runner cannot provide.
+      - name: Configure CMake
+        run: >
+          cmake -B build
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DHFT_BUILD_APPS=OFF
+          -DHFT_BUILD_BENCH=OFF
+
+      - name: Build
+        run: cmake --build build --config ${{ matrix.build_type }}
+
+      - name: Run tests
+        run: ctest --test-dir build --build-config ${{ matrix.build_type }} --output-on-failure
+
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check formatting
+        run: |
+          find include src apps tests bench -name '*.hpp' -o -name '*.cpp' \
+            | xargs clang-format --dry-run --Werror
