@@ -33,14 +33,11 @@ class Capture : public ::testing::Test
 
     void TearDown() override { std::filesystem::remove(path); }
 
-    std::vector<CaptureRecord> read_all() const
+    /* Records point into the reader's mapping, so collecting them is only valid
+       while that reader is alive. Callers keep one in scope and pass it in. */
+    static std::vector<CaptureRecord> collect(const CaptureReader& reader)
     {
-        const CaptureReader        reader(path);
-        std::vector<CaptureRecord> records;
-        for (const CaptureRecord& record : reader)
-            records.push_back(record);
-
-        return records;
+        return std::vector<CaptureRecord>(reader.begin(), reader.end());
     }
 
     void truncate_by(std::size_t bytes) const
@@ -77,7 +74,8 @@ TEST_F(Capture, RoundTripsPayloadsAndTimestamps)
         EXPECT_EQ(writer.record_count(), 3u);
     }
 
-    const std::vector<CaptureRecord> records = read_all();
+    const CaptureReader              reader(path);
+    const std::vector<CaptureRecord> records = collect(reader);
     ASSERT_EQ(records.size(), 3u);
 
     EXPECT_EQ(records[0].timestamp_ns, 1'000u);
@@ -100,7 +98,8 @@ TEST_F(Capture, PayloadsAreNulTerminatedInTheMapping)
         writer.close();
     }
 
-    const std::vector<CaptureRecord> records = read_all();
+    const CaptureReader              reader(path);
+    const std::vector<CaptureRecord> records = collect(reader);
     ASSERT_EQ(records.size(), 1u);
     EXPECT_EQ(records[0].payload[records[0].payload_size], '\0');
 }
@@ -160,7 +159,7 @@ TEST_F(Capture, ReaderRejectsForeignFiles)
         out << std::string(128, 'q');
     }
 
-    EXPECT_THROW(CaptureReader(path), std::runtime_error);
+    EXPECT_THROW(CaptureReader{path}, std::runtime_error);
 }
 
 TEST_F(Capture, ReaderRejectsAFileSmallerThanTheHeader)
@@ -171,7 +170,7 @@ TEST_F(Capture, ReaderRejectsAFileSmallerThanTheHeader)
     }
     truncate_by(8);
 
-    EXPECT_THROW(CaptureReader(path), std::runtime_error);
+    EXPECT_THROW(CaptureReader{path}, std::runtime_error);
 }
 
 TEST_F(Capture, ReaderRejectsATruncatedRecord)
@@ -183,7 +182,7 @@ TEST_F(Capture, ReaderRejectsATruncatedRecord)
     }
     truncate_by(4);
 
-    EXPECT_THROW(CaptureReader(path), std::runtime_error);
+    EXPECT_THROW(CaptureReader{path}, std::runtime_error);
 }
 
 TEST_F(Capture, WriterRejectsAPayloadLargerThanItsBuffer)

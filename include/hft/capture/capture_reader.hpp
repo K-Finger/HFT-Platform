@@ -37,6 +37,12 @@ class CaptureReader
         using value_type        = CaptureRecord;
         using difference_type   = std::ptrdiff_t;
 
+        /* operator* builds a record rather than exposing one, so dereferencing
+           yields a value. Both members are still required for
+           std::iterator_traits to recognise the type at all. */
+        using reference = CaptureRecord;
+        using pointer   = void;
+
         explicit Iterator(const std::byte* cursor) : cursor_(cursor) {}
 
         CaptureRecord operator*() const

@@ -82,12 +82,17 @@ header instead of reassembling it byte by byte.
 
 const hft::capture::CaptureReader reader("btcusdt.hftc");
 
+hft::Message msg{};
+
 for (const hft::capture::CaptureRecord& record : reader)
 {
-    hft::Message msg = hft::feed::parse_book_ticker(record.payload);
-    msg.timestamp    = record.timestamp_ns;
+    hft::feed::parse_book_ticker(record.payload, msg);
+    msg.timestamp = record.timestamp_ns;
 }
 ```
+
+Records point into the reader's mapping, so both the record and the payload it
+carries are only valid while that reader is alive.
 
 The constructor maps the file and walks it once, checking every magic, version,
 stride and terminator. That means the loop above runs with no bounds checks and no
