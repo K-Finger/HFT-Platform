@@ -103,15 +103,19 @@ update are separate costs with separate fixes:
 --- book apply cycles ---
 ```
 
-Expect the book to dominate. The pinned submodule revision stores orders as
-`std::shared_ptr<Order>` in `std::list` price levels and returns trades in a
-`std::vector` by value, so a single `apply` performs two cancels, two heap
-allocations for the new orders, and two vector returns. That is the honest
-position: the ring hop is nanoseconds, the book update is not, and the book is the
-thing to fix if the number matters.
+Expect the book to dominate. Earlier submodule revisions stored orders as
+`std::shared_ptr<Order>` in `std::list` price levels and returned trades in a
+`std::vector` by value, so a single `apply` performed two cancels, two heap
+allocations and two vector returns, and cost hundreds of nanoseconds.
 
-Two ways forward when it does. Bump the submodule to a revision with slab
-allocation, which removes the per-order allocation. Or keep the LOB out of the
+The pinned revision fixes both. Orders come from a slab, so `apply` allocates
+nothing after startup, and `addOrder` returns `std::span<const Trade>` over a
+buffer the book reuses. `BM_SnapshotBookApply` measures about 26 ns as a result.
+The span is only valid until the next `addOrder`, so callers consume it before
+touching the book again — `SnapshotBook::rest_quote` sums the fills immediately.
+
+The ring hop is still the cheaper of the two, so the book remains the thing to
+look at first if the number matters. The alternative is to keep the LOB out of the
 latency path entirely and let strategies read `TopOfBook`, which costs only the
 integer conversion — `BM_TickScaleConvert` and `BM_Microprice` measure that path.
 

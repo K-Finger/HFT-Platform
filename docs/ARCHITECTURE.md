@@ -71,9 +71,9 @@ only a price.
 this boundary. Downstream sees only integers, which compare exactly and are what a
 hardware risk path can consume.
 
-The vendored book allocates per order, so this is the one component whose cost is
-measured in hundreds of nanoseconds rather than tens. `consumer` histograms the
-ring hop and the book update separately for exactly that reason.
+The vendored book allocates orders out of a slab rather than the heap, so an
+apply costs tens of nanoseconds. It is still the most expensive step downstream of
+the ring, so `consumer` histograms the ring hop and the book update separately.
 [book.md](book.md) covers the trade-off.
 
 ## hft::feed — the exchange side

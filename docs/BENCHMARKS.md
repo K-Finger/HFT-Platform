@@ -52,17 +52,29 @@ cache line transfer between the producer core and the consumer core.
 
 ## Results
 
-Results are hardware specific and are not checked in yet. Record yours here with
-the machine that produced them, so a regression shows up:
+Results are hardware specific. Record yours here with the machine that produced
+them, so a regression shows up.
 
-- CPU, kernel, compiler:
-- Huge pages reserved, core pinned to:
-- `BM_Rdtsc`:
-- `BM_HistogramRecord`:
-- `BM_PushPopRoundTrip`:
-- `BM_PushUntilFull`, per item:
-- `BM_ParseBookTicker`, per frame:
-- Consumer `pop`, 99th percentile cycles:
+The run below is indicative only: it is a WSL2 kernel with no huge pages
+reserved, no isolated core and the governor left alone. Treat it as a floor for
+relative comparison, not as a number to quote.
+
+- CPU, kernel, compiler: i9-13900H, WSL2 5.15, GCC 13.3, `-O3 -march=native` + LTO
+- Huge pages reserved, core pinned to: none, unpinned
+- `BM_Rdtsc`: 4.95 ns
+- `BM_HistogramRecord`: 0.169 ns
+- `BM_PushPopRoundTrip`: 1.88 ns
+- `BM_PushUntilFull`, per item: 1.70 ns (589 M items/s)
+- `BM_ParseBookTicker`, per frame: 174 ns
+- `BM_SnapshotBookApply`, per snapshot: 25.8 ns
+- `BM_TickScaleConvert`: 0.185 ns
+- `BM_Microprice`: 0.095 ns
+- Consumer `pop`, 99th percentile cycles: not yet measured on a pinned host
+
+Two things stand out. The parse dominates the ingestion path at ~174 ns, an order
+of magnitude above the ring hop, so it is where the next latency work belongs.
+The book apply is ~26 ns rather than the hundreds of nanoseconds the vendored
+book used to cost, because its slab allocator removed the per-order allocation.
 
 ## Targets
 

@@ -23,9 +23,9 @@ namespace hft::book
    Swapping in a depth or order-by-order feed means replacing this class, not the
    consumers reading TopOfBook.
 
-   Note the pinned book revision allocates per order, so apply() is not
-   allocation-free. Measure it with bench/book_bench before putting it in a
-   latency budget. */
+   The pinned book revision allocates orders from a slab, so apply() does not
+   touch the heap after startup. Measure it with bench/book_bench before putting
+   it in a latency budget. */
 class SnapshotBook
 {
   public:
@@ -37,8 +37,8 @@ class SnapshotBook
        number. */
     void apply(const Message& msg);
 
-    const TopOfBook& top() const { return top_; }
-    const OrderBook& book() const { return book_; }
+    const TopOfBook&            top() const { return top_; }
+    const orderbook::OrderBook& book() const { return book_; }
 
     std::uint64_t applied_count() const { return applied_count_; }
     std::uint64_t stale_count() const { return stale_count_; }
@@ -54,18 +54,18 @@ class SnapshotBook
 
   private:
     void cancel_resting();
-    void rest_quote(Side side, std::int64_t price_ticks, std::uint64_t units,
+    void rest_quote(orderbook::Side side, std::int64_t price_ticks, std::uint64_t units,
                     std::uint64_t timestamp_ns);
 
-    TickScale scale_;
-    TopOfBook top_{};
-    OrderBook book_{};
+    TickScale            scale_;
+    TopOfBook            top_{};
+    orderbook::OrderBook book_{};
 
-    std::uint64_t next_order_id_ = 1;
-    OrderId       bid_id_{};
-    OrderId       ask_id_{};
-    bool          bid_resting_ = false;
-    bool          ask_resting_ = false;
+    std::uint64_t      next_order_id_ = 1;
+    orderbook::OrderId bid_id_{};
+    orderbook::OrderId ask_id_{};
+    bool               bid_resting_ = false;
+    bool               ask_resting_ = false;
 
     std::uint64_t last_update_id_     = 0;
     std::uint64_t applied_count_      = 0;

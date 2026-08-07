@@ -5,10 +5,22 @@
 #include <Side.h>
 
 #include <chrono>
-#include <vector>
+#include <span>
 
 namespace hft::book
 {
+namespace
+{
+using orderbook::Order;
+using orderbook::OrderId;
+using orderbook::OrderType;
+using orderbook::Price;
+using orderbook::Quantity;
+using orderbook::Side;
+using orderbook::Timestamp;
+using orderbook::Trade;
+}  // namespace
+
 
 void SnapshotBook::apply(const Message& msg)
 {
@@ -56,7 +68,9 @@ void SnapshotBook::rest_quote(Side side, std::int64_t price_ticks, std::uint64_t
 {
     const OrderId id{next_order_id_++};
 
-    const std::vector<Trade> trades = book_.addOrder(
+    // The span views a buffer the book reuses, so it stays valid only until the
+    // next addOrder. It is consumed here, before any further call.
+    const std::span<const Trade> trades = book_.addOrder(
         Order{OrderType::GoodTillCancel, id, side, Price{price_ticks}, Quantity{units},
               Timestamp{std::chrono::nanoseconds{timestamp_ns}}});
     trade_count_ += trades.size();
