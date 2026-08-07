@@ -22,9 +22,25 @@ struct LatencyHistogram
         total++;
     }
 
-    void print() const
+    /* Bucket upper bound containing the p-th percentile sample. Resolution is
+       one power of two, which is enough to spot a regression without storing
+       every sample. */
+    [[nodiscard]] std::uint64_t percentile(double p) const
     {
-        std::printf("%-12s %10s\n", "cycles(<)", "count");
+        const auto target = static_cast<std::uint64_t>(p * static_cast<double>(total));
+        std::uint64_t cumulative = 0;
+        for (int i = 0; i < kBuckets; i++)
+        {
+            cumulative += counts[i];
+            if (cumulative > target)
+                return 1ULL << (i + 1);
+        }
+        return 0;
+    }
+
+    void print(const char* unit = "cycles") const
+    {
+        std::printf("%-9s(<) %10s\n", unit, "count");
         for (int i = 0; i < kBuckets; i++)
         {
             if (counts[i] == 0)
@@ -32,6 +48,10 @@ struct LatencyHistogram
             std::printf("%-12llu %10llu\n", 1ULL << (i + 1),
                         static_cast<unsigned long long>(counts[i]));
         }
+        std::printf("p50=%llu p99=%llu p999=%llu (%s)\n",
+                    static_cast<unsigned long long>(percentile(0.50)),
+                    static_cast<unsigned long long>(percentile(0.99)),
+                    static_cast<unsigned long long>(percentile(0.999)), unit);
     }
 };
 

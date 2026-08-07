@@ -6,6 +6,7 @@
 #include "hft/book/snapshot_book.hpp"
 #include "hft/ipc/shared_memory.hpp"
 #include "hft/sys/affinity.hpp"
+#include "hft/time/clock.hpp"
 #include "hft/time/latency_histogram.hpp"
 #include "hft/time/tsc.hpp"
 
@@ -21,7 +22,8 @@ constexpr int kRealtimePriority = 80;
 constexpr std::uint64_t kReportInterval = 50;
 
 void report(const hft::book::SnapshotBook& book, const hft::time::LatencyHistogram& pop_cycles,
-            const hft::time::LatencyHistogram& apply_cycles)
+            const hft::time::LatencyHistogram& apply_cycles,
+            const hft::time::LatencyHistogram& wire_latency_ns)
 {
     std::printf("\napplied=%llu stale=%llu crossed=%llu trades=%llu filled_quotes=%llu\n",
                 static_cast<unsigned long long>(book.applied_count()),
@@ -34,6 +36,8 @@ void report(const hft::book::SnapshotBook& book, const hft::time::LatencyHistogr
     pop_cycles.print();
     std::printf("--- book apply cycles ---\n");
     apply_cycles.print();
+    std::printf("--- exchange-recv-to-applied latency ---\n");
+    wire_latency_ns.print("ns");
     std::printf("\n");
 }
 
@@ -51,6 +55,10 @@ int main()
         hft::book::SnapshotBook book(hft::book::kUsdtPairScale);
         hft::time::LatencyHistogram pop_cycles;
         hft::time::LatencyHistogram apply_cycles;
+        // TSC deltas are only valid on one core: ingestion and consumer are pinned
+        // to different cores, so wire latency is measured with the wall clock
+        // stamped into Message.timestamp at recv instead of rdtsc().
+        hft::time::LatencyHistogram wire_latency_ns;
         hft::Message msg{};
 
         while (true)
@@ -66,6 +74,7 @@ int main()
 
             book.apply(msg);
             apply_cycles.record(hft::time::rdtsc() - popped);
+            wire_latency_ns.record(hft::time::now_ns() - msg.timestamp);
 
             const hft::book::TopOfBook& top = book.top();
             std::printf("bid=%.2f ask=%.2f spread=%lld micro=%.4f\n",
@@ -74,7 +83,7 @@ int main()
                         static_cast<long long>(top.spread_ticks()), top.microprice_ticks());
 
             if (pop_cycles.total % kReportInterval == 0)
-                report(book, pop_cycles, apply_cycles);
+                report(book, pop_cycles, apply_cycles, wire_latency_ns);
         }
     }
     catch (const std::exception& error)
