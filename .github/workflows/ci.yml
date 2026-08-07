@@ -46,3 +46,28 @@ jobs:
         run: |
           find include src apps tests bench -name '*.hpp' -o -name '*.cpp' \
             | xargs clang-format --dry-run --Werror
+
+  tidy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libboost-dev libssl-dev clang-tidy
+
+      # Configure only: clang-tidy reads flags from compile_commands.json and
+      # does not need the project actually built. Bench stays out of scope,
+      # same as build-and-test, since it is not part of the enforced build.
+      - name: Configure CMake
+        run: >
+          cmake -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DHFT_BUILD_BENCH=OFF
+
+      - name: Run clang-tidy
+        run: |
+          find src apps tests -name '*.cpp' \
+            | xargs clang-tidy -p build --warnings-as-errors='*'

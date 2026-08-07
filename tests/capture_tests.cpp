@@ -37,7 +37,7 @@ class Capture : public ::testing::Test
        while that reader is alive. Callers keep one in scope and pass it in. */
     static std::vector<CaptureRecord> collect(const CaptureReader& reader)
     {
-        return std::vector<CaptureRecord>(reader.begin(), reader.end());
+        return {reader.begin(), reader.end()};
     }
 
     void truncate_by(std::size_t bytes) const

@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <string>
 #include <system_error>
+#include <utility>
 
 namespace hft::capture
 {
@@ -40,7 +41,7 @@ std::string hex(std::uint32_t value)
 
 }  // namespace
 
-CaptureReader::CaptureReader(const std::string& path) : path_(path)
+CaptureReader::CaptureReader(std::string path) : path_(std::move(path))
 {
     const int fd = open(path_.c_str(), O_RDONLY);
     if (fd == -1)
@@ -94,8 +95,8 @@ void CaptureReader::validate()
 
     while (cursor != limit)
     {
-        const std::size_t offset = static_cast<std::size_t>(cursor - base_);
-        const std::size_t remaining = static_cast<std::size_t>(limit - cursor);
+        const auto offset = static_cast<std::size_t>(cursor - base_);
+        const auto remaining = static_cast<std::size_t>(limit - cursor);
 
         if (remaining < sizeof(RecordHeader))
             throw std::runtime_error(path_ + " truncated: record header at offset " +

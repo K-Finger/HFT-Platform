@@ -70,7 +70,7 @@ int main(int argc, char** argv)
     }
     catch (const std::exception& error)
     {
-        std::cerr << "replay aborted: " << error.what() << std::endl;
+        std::cerr << "replay aborted: " << error.what() << '\n';
         return 1;
     }
 }

@@ -79,7 +79,7 @@ int main()
     }
     catch (const std::exception& error)
     {
-        std::cerr << "consumer aborted: " << error.what() << std::endl;
+        std::cerr << "consumer aborted: " << error.what() << '\n';
         return 1;
     }
 }

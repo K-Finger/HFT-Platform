@@ -57,10 +57,10 @@ TEST(TickScale, RoundTripsThroughTicks)
 
 TEST(TickScale, RejectsNonFiniteAndNegativeInput)
 {
-    EXPECT_THROW(kUsdtPairScale.price_ticks(std::nan("")), std::domain_error);
-    EXPECT_THROW(kUsdtPairScale.price_ticks(-1.0), std::domain_error);
-    EXPECT_THROW(kUsdtPairScale.quantity_units(std::nan("")), std::domain_error);
-    EXPECT_THROW(kUsdtPairScale.quantity_units(-0.5), std::domain_error);
+    EXPECT_THROW((void)kUsdtPairScale.price_ticks(std::nan("")), std::domain_error);
+    EXPECT_THROW((void)kUsdtPairScale.price_ticks(-1.0), std::domain_error);
+    EXPECT_THROW((void)kUsdtPairScale.quantity_units(std::nan("")), std::domain_error);
+    EXPECT_THROW((void)kUsdtPairScale.quantity_units(-0.5), std::domain_error);
 }
 
 TEST(TopOfBook, ReportsSpreadAndMid)
@@ -89,7 +89,7 @@ TEST(TopOfBook, MicropriceLeansAwayFromTheHeavierSide)
 
 TEST(TopOfBook, MicropriceNeedsSizeSomewhere)
 {
-    EXPECT_THROW((TopOfBook{10'000, 10'002, 0, 0}.microprice_ticks()), std::domain_error);
+    EXPECT_THROW((void)(TopOfBook{10'000, 10'002, 0, 0}.microprice_ticks()), std::domain_error);
 }
 
 TEST(SnapshotBook, RestsBothSidesOfTheFirstSnapshot)

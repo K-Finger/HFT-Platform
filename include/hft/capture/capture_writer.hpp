@@ -40,7 +40,7 @@ class CaptureWriter
     /* Idempotent. Throws std::system_error when the flush or close fails. */
     void close();
 
-    std::uint64_t record_count() const { return record_count_; }
+    [[nodiscard]] std::uint64_t record_count() const { return record_count_; }
 
   private:
     std::string path_;

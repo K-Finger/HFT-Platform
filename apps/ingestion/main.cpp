@@ -52,7 +52,7 @@ int main()
     }
     catch (const std::exception& error)
     {
-        std::cerr << "ingestion aborted: " << error.what() << std::endl;
+        std::cerr << "ingestion aborted: " << error.what() << '\n';
         return 1;
     }
 }

@@ -37,20 +37,20 @@ class SnapshotBook
        number. */
     void apply(const Message& msg);
 
-    const TopOfBook& top() const { return top_; }
-    const orderbook::OrderBook& book() const { return book_; }
+    [[nodiscard]] const TopOfBook& top() const { return top_; }
+    [[nodiscard]] const orderbook::OrderBook& book() const { return book_; }
 
-    std::uint64_t applied_count() const { return applied_count_; }
-    std::uint64_t stale_count() const { return stale_count_; }
-    std::uint64_t crossed_count() const { return crossed_count_; }
+    [[nodiscard]] std::uint64_t applied_count() const { return applied_count_; }
+    [[nodiscard]] std::uint64_t stale_count() const { return stale_count_; }
+    [[nodiscard]] std::uint64_t crossed_count() const { return crossed_count_; }
 
     /* Snapshots whose synthetic quotes matched instead of resting, which only
        happens on a crossed frame. */
-    std::uint64_t trade_count() const { return trade_count_; }
+    [[nodiscard]] std::uint64_t trade_count() const { return trade_count_; }
 
     /* Quotes that had already left the book when the next snapshot tried to
        cancel them, meaning they were filled by a crossing frame. */
-    std::uint64_t filled_quote_count() const { return filled_quote_count_; }
+    [[nodiscard]] std::uint64_t filled_quote_count() const { return filled_quote_count_; }
 
   private:
     void cancel_resting();
@@ -59,11 +59,11 @@ class SnapshotBook
 
     TickScale scale_;
     TopOfBook top_{};
-    orderbook::OrderBook book_{};
+    orderbook::OrderBook book_;
 
     std::uint64_t next_order_id_ = 1;
-    orderbook::OrderId bid_id_{};
-    orderbook::OrderId ask_id_{};
+    orderbook::OrderId bid_id_;
+    orderbook::OrderId ask_id_;
     bool bid_resting_ = false;
     bool ask_resting_ = false;
 

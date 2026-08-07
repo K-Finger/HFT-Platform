@@ -69,17 +69,17 @@ class CaptureReader
 
     /* Throws std::system_error when the file cannot be opened or mapped, and
        std::runtime_error when the magic, version or record layout is wrong. */
-    explicit CaptureReader(const std::string& path);
+    explicit CaptureReader(std::string path);
     ~CaptureReader();
 
     CaptureReader(const CaptureReader&) = delete;
     CaptureReader& operator=(const CaptureReader&) = delete;
 
-    Iterator begin() const { return Iterator(base_ + sizeof(FileHeader)); }
-    Iterator end() const { return Iterator(base_ + size_bytes_); }
+    [[nodiscard]] Iterator begin() const { return Iterator(base_ + sizeof(FileHeader)); }
+    [[nodiscard]] Iterator end() const { return Iterator(base_ + size_bytes_); }
 
-    std::uint64_t record_count() const { return record_count_; }
-    std::size_t size_bytes() const { return size_bytes_; }
+    [[nodiscard]] std::uint64_t record_count() const { return record_count_; }
+    [[nodiscard]] std::size_t size_bytes() const { return size_bytes_; }
 
   private:
     void validate();

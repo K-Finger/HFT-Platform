@@ -21,7 +21,7 @@ constexpr auto kTarget = "/ws/btcusdt@bookTicker";
 
 volatile std::sig_atomic_t g_stop = 0;
 
-void request_stop(int)
+void request_stop(int /*signal*/)
 {
     g_stop = 1;
 }
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     }
     catch (const std::exception& error)
     {
-        std::cerr << "recorder aborted: " << error.what() << std::endl;
+        std::cerr << "recorder aborted: " << error.what() << '\n';
         return 1;
     }
 }

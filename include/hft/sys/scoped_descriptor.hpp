@@ -16,7 +16,7 @@ class ScopedDescriptor
     ScopedDescriptor(const ScopedDescriptor&) = delete;
     ScopedDescriptor& operator=(const ScopedDescriptor&) = delete;
 
-    int get() const { return fd_; }
+    [[nodiscard]] int get() const { return fd_; }
 
   private:
     int fd_;

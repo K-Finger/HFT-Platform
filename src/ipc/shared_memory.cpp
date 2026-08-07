@@ -27,8 +27,7 @@ namespace
 
 std::system_error shm_error(int error_number, const std::string& what)
 {
-    return std::system_error(error_number, std::generic_category(),
-                             what + " for shared memory object " + kRingName);
+    return {error_number, std::generic_category(), what + " for shared memory object " + kRingName};
 }
 
 /* Maps onto 2MB huge pages so the whole ring costs one TLB entry and the tight

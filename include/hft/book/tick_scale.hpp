@@ -19,7 +19,7 @@ struct TickScale
     std::uint64_t quantity_units_per_unit;  // 100000000 turns 1.2 BTC into satoshi
 
     /* Throws std::domain_error on a non-finite or negative price. */
-    std::int64_t price_ticks(double price) const
+    [[nodiscard]] std::int64_t price_ticks(double price) const
     {
         if (!std::isfinite(price) || price < 0.0)
             throw std::domain_error("price " + std::to_string(price) +
@@ -29,7 +29,7 @@ struct TickScale
     }
 
     /* Throws std::domain_error on a non-finite or negative quantity. */
-    std::uint64_t quantity_units(double quantity) const
+    [[nodiscard]] std::uint64_t quantity_units(double quantity) const
     {
         if (!std::isfinite(quantity) || quantity < 0.0)
             throw std::domain_error("quantity " + std::to_string(quantity) +
@@ -39,7 +39,7 @@ struct TickScale
             std::llround(quantity * static_cast<double>(quantity_units_per_unit)));
     }
 
-    double price_from_ticks(std::int64_t ticks) const
+    [[nodiscard]] double price_from_ticks(std::int64_t ticks) const
     {
         return static_cast<double>(ticks) / static_cast<double>(price_ticks_per_unit);
     }

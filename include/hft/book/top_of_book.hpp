@@ -16,13 +16,13 @@ struct TopOfBook
     std::uint64_t bid_units = 0;
     std::uint64_t ask_units = 0;
 
-    std::int64_t spread_ticks() const { return ask_ticks - bid_ticks; }
+    [[nodiscard]] std::int64_t spread_ticks() const { return ask_ticks - bid_ticks; }
 
     /* True when the snapshot quotes an ask at or below the bid. Real venues do
        not, so this flags a stale or interleaved update. */
-    bool crossed() const { return ask_ticks <= bid_ticks; }
+    [[nodiscard]] bool crossed() const { return ask_ticks <= bid_ticks; }
 
-    double mid_ticks() const
+    [[nodiscard]] double mid_ticks() const
     {
         return (static_cast<double>(bid_ticks) + static_cast<double>(ask_ticks)) / 2.0;
     }
@@ -31,7 +31,7 @@ struct TopOfBook
        toward the other side's quote, because that side is likelier to trade next.
        Throws std::domain_error when neither side shows size, since no fair price
        exists to report. */
-    double microprice_ticks() const
+    [[nodiscard]] double microprice_ticks() const
     {
         const std::uint64_t total_units = bid_units + ask_units;
         if (total_units == 0)
