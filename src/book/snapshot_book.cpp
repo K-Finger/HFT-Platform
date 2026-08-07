@@ -21,7 +21,6 @@ using orderbook::Timestamp;
 using orderbook::Trade;
 }  // namespace
 
-
 void SnapshotBook::apply(const Message& msg)
 {
     if (applied_count_ != 0 && msg.update_id <= last_update_id_)
@@ -70,9 +69,9 @@ void SnapshotBook::rest_quote(Side side, std::int64_t price_ticks, std::uint64_t
 
     // The span views a buffer the book reuses, so it stays valid only until the
     // next addOrder. It is consumed here, before any further call.
-    const std::span<const Trade> trades = book_.addOrder(
-        Order{OrderType::GoodTillCancel, id, side, Price{price_ticks}, Quantity{units},
-              Timestamp{std::chrono::nanoseconds{timestamp_ns}}});
+    const std::span<const Trade> trades =
+        book_.addOrder(Order{OrderType::GoodTillCancel, id, side, Price{price_ticks},
+                             Quantity{units}, Timestamp{std::chrono::nanoseconds{timestamp_ns}}});
     trade_count_ += trades.size();
 
     // Every returned trade involves the order just added, so its filled quantity
