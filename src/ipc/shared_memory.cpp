@@ -10,6 +10,16 @@
 #include <string>
 #include <system_error>
 
+/* glibc's sys/mman.h declares MAP_HUGETLB but leaves the size selector to the
+   Linux headers, which are not present on every toolchain. The encoding is the
+   log2 of the page size shifted into the flag word. */
+#ifndef MAP_HUGE_SHIFT
+#define MAP_HUGE_SHIFT 26
+#endif
+#ifndef MAP_HUGE_2MB
+#define MAP_HUGE_2MB (21 << MAP_HUGE_SHIFT)
+#endif
+
 namespace hft::ipc
 {
 namespace
