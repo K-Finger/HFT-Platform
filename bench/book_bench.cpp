@@ -16,9 +16,9 @@ hft::Message snapshot(std::uint64_t update_id)
 
     hft::Message msg{};
     msg.bid_price = 63501.10 + drift;
-    msg.bid_qty   = 1.2;
+    msg.bid_qty = 1.2;
     msg.ask_price = 63502.45 + drift;
-    msg.ask_qty   = 3.4;
+    msg.ask_qty = 3.4;
     msg.timestamp = update_id;
     msg.update_id = update_id;
     return msg;
@@ -29,7 +29,7 @@ hft::Message snapshot(std::uint64_t update_id)
 void BM_SnapshotBookApply(benchmark::State& state)
 {
     hft::book::SnapshotBook book(hft::book::kUsdtPairScale);
-    std::uint64_t           update_id = 1;
+    std::uint64_t update_id = 1;
 
     for (auto _ : state)
     {

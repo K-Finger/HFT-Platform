@@ -21,9 +21,9 @@ hft::Message snapshot(std::uint64_t update_id, double bid, double bid_qty, doubl
 {
     hft::Message msg{};
     msg.bid_price = bid;
-    msg.bid_qty   = bid_qty;
+    msg.bid_qty = bid_qty;
     msg.ask_price = ask;
-    msg.ask_qty   = ask_qty;
+    msg.ask_qty = ask_qty;
     msg.timestamp = 1'000 * update_id;
     msg.update_id = update_id;
     return msg;

@@ -10,10 +10,10 @@ namespace hft
    is what makes it valid to place inside a mapping another process reads. */
 struct alignas(64) Message
 {
-    double        bid_price;
-    double        ask_price;
-    double        bid_qty;
-    double        ask_qty;
+    double bid_price;
+    double ask_price;
+    double bid_qty;
+    double ask_qty;
     std::uint64_t timestamp;  // local receive time, nanoseconds
     std::uint64_t update_id;  // exchange sequence number, a gap means a dropped message
 };

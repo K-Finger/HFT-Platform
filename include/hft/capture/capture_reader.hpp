@@ -15,7 +15,7 @@ namespace hft::capture
 struct CaptureRecord
 {
     std::uint64_t timestamp_ns;
-    const char*   payload;
+    const char* payload;
     std::uint32_t payload_size;
 };
 
@@ -34,14 +34,14 @@ class CaptureReader
     {
       public:
         using iterator_category = std::forward_iterator_tag;
-        using value_type        = CaptureRecord;
-        using difference_type   = std::ptrdiff_t;
+        using value_type = CaptureRecord;
+        using difference_type = std::ptrdiff_t;
 
         /* operator* builds a record rather than exposing one, so dereferencing
            yields a value. Both members are still required for
            std::iterator_traits to recognise the type at all. */
         using reference = CaptureRecord;
-        using pointer   = void;
+        using pointer = void;
 
         explicit Iterator(const std::byte* cursor) : cursor_(cursor) {}
 
@@ -72,22 +72,22 @@ class CaptureReader
     explicit CaptureReader(const std::string& path);
     ~CaptureReader();
 
-    CaptureReader(const CaptureReader&)            = delete;
+    CaptureReader(const CaptureReader&) = delete;
     CaptureReader& operator=(const CaptureReader&) = delete;
 
     Iterator begin() const { return Iterator(base_ + sizeof(FileHeader)); }
     Iterator end() const { return Iterator(base_ + size_bytes_); }
 
     std::uint64_t record_count() const { return record_count_; }
-    std::size_t   size_bytes() const { return size_bytes_; }
+    std::size_t size_bytes() const { return size_bytes_; }
 
   private:
     void validate();
 
-    std::string      path_;
-    const std::byte* base_         = nullptr;
-    std::size_t      size_bytes_   = 0;
-    std::uint64_t    record_count_ = 0;
+    std::string path_;
+    const std::byte* base_ = nullptr;
+    std::size_t size_bytes_ = 0;
+    std::uint64_t record_count_ = 0;
 };
 
 }  // namespace hft::capture

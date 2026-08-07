@@ -13,7 +13,7 @@ class ScopedDescriptor
     explicit ScopedDescriptor(int fd) : fd_(fd) {}
     ~ScopedDescriptor() { close(fd_); }
 
-    ScopedDescriptor(const ScopedDescriptor&)            = delete;
+    ScopedDescriptor(const ScopedDescriptor&) = delete;
     ScopedDescriptor& operator=(const ScopedDescriptor&) = delete;
 
     int get() const { return fd_; }

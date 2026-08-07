@@ -1,9 +1,8 @@
 #pragma once
 
-#include <ctime>
-
 #include <cerrno>
 #include <cstdint>
+#include <ctime>
 #include <system_error>
 
 namespace hft::time

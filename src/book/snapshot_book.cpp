@@ -44,7 +44,7 @@ void SnapshotBook::apply(const Message& msg)
     if (next.crossed())
         crossed_count_++;
 
-    top_            = next;
+    top_ = next;
     last_update_id_ = msg.update_id;
     applied_count_++;
 }
@@ -85,12 +85,12 @@ void SnapshotBook::rest_quote(Side side, std::int64_t price_ticks, std::uint64_t
 
     if (side == Side::Buy)
     {
-        bid_id_      = id;
+        bid_id_ = id;
         bid_resting_ = rests;
     }
     else
     {
-        ask_id_      = id;
+        ask_id_ = id;
         ask_resting_ = rests;
     }
 }

@@ -44,7 +44,7 @@ CaptureWriter::CaptureWriter(const std::string& path)
                                 "open(O_WRONLY | O_CREAT | O_TRUNC) failed for " + path_);
 
     FileHeader header{};
-    header.magic          = kMagic;
+    header.magic = kMagic;
     header.format_version = kFormatVersion;
     write_all(fd_, reinterpret_cast<const std::byte*>(&header), sizeof(header), path_);
 }
@@ -104,7 +104,7 @@ void CaptureWriter::close()
     flush();
 
     const int fd = fd_;
-    fd_          = -1;
+    fd_ = -1;
     if (::close(fd) == -1)
         throw std::system_error(errno, std::generic_category(), "close failed for " + path_);
 }

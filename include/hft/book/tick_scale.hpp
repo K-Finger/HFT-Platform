@@ -15,8 +15,8 @@ namespace hft::book
    Conversion happens once, at the boundary, and never again downstream. */
 struct TickScale
 {
-    std::int64_t  price_ticks_per_unit;      // 100 turns 63501.10 into 6350110 cents
-    std::uint64_t quantity_units_per_unit;   // 100000000 turns 1.2 BTC into satoshi
+    std::int64_t price_ticks_per_unit;      // 100 turns 63501.10 into 6350110 cents
+    std::uint64_t quantity_units_per_unit;  // 100000000 turns 1.2 BTC into satoshi
 
     /* Throws std::domain_error on a non-finite or negative price. */
     std::int64_t price_ticks(double price) const

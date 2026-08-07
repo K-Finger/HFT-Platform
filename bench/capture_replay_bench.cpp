@@ -1,9 +1,8 @@
+#include "fixtures/frames.hpp"
 #include "hft/capture/capture_reader.hpp"
 #include "hft/capture/capture_writer.hpp"
 #include "hft/feed/book_ticker_parser.hpp"
 #include "hft/ipc/spsc_ring.hpp"
-
-#include "fixtures/frames.hpp"
 
 #include <benchmark/benchmark.h>
 
@@ -19,7 +18,8 @@ constexpr std::size_t kRecords = 100'000;
 /* Written once per process, then mapped by every iteration below. */
 const std::string& capture_path()
 {
-    static const std::string path = [] {
+    static const std::string path = []
+    {
         const std::string file =
             (std::filesystem::temp_directory_path() / "hft_capture_bench.hftc").string();
 
@@ -59,9 +59,9 @@ BENCHMARK(BM_ReplayParse);
 void BM_ReplayParseAndPush(benchmark::State& state)
 {
     const hft::capture::CaptureReader reader(capture_path());
-    hft::ipc::SpscRing                ring{};
-    hft::Message                      out{};
-    hft::Message                      msg{};
+    hft::ipc::SpscRing ring{};
+    hft::Message out{};
+    hft::Message msg{};
 
     for (auto _ : state)
     {

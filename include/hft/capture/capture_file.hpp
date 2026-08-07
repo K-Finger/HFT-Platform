@@ -7,7 +7,7 @@ namespace hft::capture
 {
 
 /* "HFTC", so reading an unrelated file as a capture fails immediately. */
-constexpr std::uint32_t kMagic         = 0x43544648;
+constexpr std::uint32_t kMagic = 0x43544648;
 constexpr std::uint32_t kFormatVersion = 1;
 
 /* Sized so the first record header starts on its own cache line. */

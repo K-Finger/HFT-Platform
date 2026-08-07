@@ -12,7 +12,7 @@ struct LatencyHistogram
 {
     static constexpr int kBuckets = 64;
 
-    std::uint64_t total            = 0;
+    std::uint64_t total = 0;
     std::uint64_t counts[kBuckets] = {};  // bucket i holds samples in [2^i, 2^(i+1))
 
     void record(std::uint64_t cycles)

@@ -11,8 +11,8 @@ namespace hft::book
    a strategy reading top of book should not walk a map to get it. */
 struct TopOfBook
 {
-    std::int64_t  bid_ticks = 0;
-    std::int64_t  ask_ticks = 0;
+    std::int64_t bid_ticks = 0;
+    std::int64_t ask_ticks = 0;
     std::uint64_t bid_units = 0;
     std::uint64_t ask_units = 0;
 

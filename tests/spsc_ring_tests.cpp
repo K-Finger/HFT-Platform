@@ -31,7 +31,7 @@ std::unique_ptr<SpscRing> make_ring()
 
 TEST(SpscRing, PopOnEmptyRingFails)
 {
-    auto    ring = make_ring();
+    auto ring = make_ring();
     Message out{};
 
     EXPECT_FALSE(ring->pop(out));
@@ -75,7 +75,7 @@ TEST(SpscRing, PushOnFullRingFails)
 
 TEST(SpscRing, CursorsWrapAroundCapacity)
 {
-    auto    ring = make_ring();
+    auto ring = make_ring();
     Message out{};
 
     for (std::uint64_t i = 0; i < SpscRing::kCapacity * 3; i++)

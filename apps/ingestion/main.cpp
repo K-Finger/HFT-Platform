@@ -14,11 +14,11 @@
 namespace
 {
 
-constexpr int  kIngestionCore    = 2;
-constexpr int  kRealtimePriority = 80;
-constexpr auto kHost             = "stream.binance.us";
-constexpr auto kPort             = "9443";
-constexpr auto kTarget           = "/ws/btcusdt@bookTicker";
+constexpr int kIngestionCore = 2;
+constexpr int kRealtimePriority = 80;
+constexpr auto kHost = "stream.binance.us";
+constexpr auto kPort = "9443";
+constexpr auto kTarget = "/ws/btcusdt@bookTicker";
 
 }  // namespace
 
@@ -39,7 +39,7 @@ int main()
 
         while (true)
         {
-            const std::string&  frame       = feed.read();
+            const std::string& frame = feed.read();
             const std::uint64_t received_ns = hft::time::now_ns();  // stamp arrival, not parse cost
 
             hft::feed::parse_book_ticker(frame.c_str(), msg);

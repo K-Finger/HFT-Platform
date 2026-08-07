@@ -20,7 +20,7 @@ void BM_PushPopRoundTrip(benchmark::State& state)
 {
     hft::ipc::SpscRing ring{};
     const hft::Message msg = sample_message();
-    hft::Message       out{};
+    hft::Message out{};
 
     for (auto _ : state)
     {

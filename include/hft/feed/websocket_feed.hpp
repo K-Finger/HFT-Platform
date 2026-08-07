@@ -32,12 +32,12 @@ class WebSocketFeed
     std::string port_;
     std::string target_;
 
-    boost::asio::io_context   io_context_;
+    boost::asio::io_context io_context_;
     boost::asio::ssl::context ssl_context_;
 
     boost::beast::websocket::stream<boost::beast::ssl_stream<boost::beast::tcp_stream>> websocket_;
-    boost::beast::flat_buffer                                                          buffer_;
-    std::string                                                                        payload_;
+    boost::beast::flat_buffer buffer_;
+    std::string payload_;
 };
 
 }  // namespace hft::feed

@@ -1,5 +1,5 @@
-#include "hft/capture/capture_reader.hpp"
 #include "hft/capture/capture_file.hpp"
+#include "hft/capture/capture_reader.hpp"
 #include "hft/capture/capture_writer.hpp"
 
 #include <gtest/gtest.h>
@@ -25,7 +25,7 @@ class Capture : public ::testing::Test
     void SetUp() override
     {
         const char* test_name = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-        path                  = (std::filesystem::temp_directory_path() /
+        path = (std::filesystem::temp_directory_path() /
                 ("hft_capture_" + std::string(test_name) + ".hftc"))
                    .string();
         std::filesystem::remove(path);
@@ -74,7 +74,7 @@ TEST_F(Capture, RoundTripsPayloadsAndTimestamps)
         EXPECT_EQ(writer.record_count(), 3u);
     }
 
-    const CaptureReader              reader(path);
+    const CaptureReader reader(path);
     const std::vector<CaptureRecord> records = collect(reader);
     ASSERT_EQ(records.size(), 3u);
 
@@ -98,7 +98,7 @@ TEST_F(Capture, PayloadsAreNulTerminatedInTheMapping)
         writer.close();
     }
 
-    const CaptureReader              reader(path);
+    const CaptureReader reader(path);
     const std::vector<CaptureRecord> records = collect(reader);
     ASSERT_EQ(records.size(), 1u);
     EXPECT_EQ(records[0].payload[records[0].payload_size], '\0');
@@ -120,8 +120,8 @@ TEST_F(Capture, RecordHeadersStayEightByteAligned)
     std::uint64_t expected = 0;
     for (const CaptureRecord& record : reader)
     {
-        const auto header_address = reinterpret_cast<std::uintptr_t>(record.payload) -
-                                    sizeof(hft::capture::RecordHeader);
+        const auto header_address =
+            reinterpret_cast<std::uintptr_t>(record.payload) - sizeof(hft::capture::RecordHeader);
 
         EXPECT_EQ(record.timestamp_ns, expected);
         EXPECT_EQ(header_address % hft::capture::kRecordAlignment, 0u);
@@ -187,7 +187,7 @@ TEST_F(Capture, ReaderRejectsATruncatedRecord)
 
 TEST_F(Capture, WriterRejectsAPayloadLargerThanItsBuffer)
 {
-    CaptureWriter     writer(path);
+    CaptureWriter writer(path);
     const std::string oversized(CaptureWriter::kBufferBytes, 'a');
 
     EXPECT_THROW(writer.append(1, oversized), std::length_error);

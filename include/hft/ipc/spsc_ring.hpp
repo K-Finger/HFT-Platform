@@ -1,10 +1,10 @@
 #pragma once
 
+#include "hft/core/types.hpp"
+
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-
-#include "hft/core/types.hpp"
 
 namespace hft::ipc
 {

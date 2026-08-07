@@ -37,7 +37,7 @@ class SnapshotBook
        number. */
     void apply(const Message& msg);
 
-    const TopOfBook&            top() const { return top_; }
+    const TopOfBook& top() const { return top_; }
     const orderbook::OrderBook& book() const { return book_; }
 
     std::uint64_t applied_count() const { return applied_count_; }
@@ -57,21 +57,21 @@ class SnapshotBook
     void rest_quote(orderbook::Side side, std::int64_t price_ticks, std::uint64_t units,
                     std::uint64_t timestamp_ns);
 
-    TickScale            scale_;
-    TopOfBook            top_{};
+    TickScale scale_;
+    TopOfBook top_{};
     orderbook::OrderBook book_{};
 
-    std::uint64_t      next_order_id_ = 1;
+    std::uint64_t next_order_id_ = 1;
     orderbook::OrderId bid_id_{};
     orderbook::OrderId ask_id_{};
-    bool               bid_resting_ = false;
-    bool               ask_resting_ = false;
+    bool bid_resting_ = false;
+    bool ask_resting_ = false;
 
-    std::uint64_t last_update_id_     = 0;
-    std::uint64_t applied_count_      = 0;
-    std::uint64_t stale_count_        = 0;
-    std::uint64_t crossed_count_      = 0;
-    std::uint64_t trade_count_        = 0;
+    std::uint64_t last_update_id_ = 0;
+    std::uint64_t applied_count_ = 0;
+    std::uint64_t stale_count_ = 0;
+    std::uint64_t crossed_count_ = 0;
+    std::uint64_t trade_count_ = 0;
     std::uint64_t filled_quote_count_ = 0;
 };
 

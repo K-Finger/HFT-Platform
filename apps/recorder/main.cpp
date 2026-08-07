@@ -15,8 +15,8 @@
 namespace
 {
 
-constexpr auto kHost   = "stream.binance.us";
-constexpr auto kPort   = "9443";
+constexpr auto kHost = "stream.binance.us";
+constexpr auto kPort = "9443";
 constexpr auto kTarget = "/ws/btcusdt@bookTicker";
 
 volatile std::sig_atomic_t g_stop = 0;

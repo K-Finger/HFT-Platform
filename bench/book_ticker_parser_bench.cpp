@@ -1,6 +1,5 @@
-#include "hft/feed/book_ticker_parser.hpp"
-
 #include "fixtures/frames.hpp"
+#include "hft/feed/book_ticker_parser.hpp"
 
 #include <benchmark/benchmark.h>
 

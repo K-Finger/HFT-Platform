@@ -42,8 +42,8 @@ SpscRing* map_ring(int fd)
     if (mapping != MAP_FAILED)
         return static_cast<SpscRing*>(mapping);
 
-    mapping = mmap(nullptr, sizeof(SpscRing), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE, fd,
-                   0);
+    mapping =
+        mmap(nullptr, sizeof(SpscRing), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE, fd, 0);
     if (mapping == MAP_FAILED)
         throw shm_error(errno, "mmap failed");
 

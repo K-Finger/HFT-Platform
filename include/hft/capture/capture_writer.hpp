@@ -28,7 +28,7 @@ class CaptureWriter
        Call close() directly to observe errors. */
     ~CaptureWriter();
 
-    CaptureWriter(const CaptureWriter&)            = delete;
+    CaptureWriter(const CaptureWriter&) = delete;
     CaptureWriter& operator=(const CaptureWriter&) = delete;
 
     /* Queues one record. Throws std::length_error when a payload cannot fit the
@@ -43,11 +43,11 @@ class CaptureWriter
     std::uint64_t record_count() const { return record_count_; }
 
   private:
-    std::string             path_;
-    int                     fd_;
-    std::vector<std::byte>  buffer_;
-    std::size_t             buffered_ = 0;
-    std::uint64_t           record_count_ = 0;
+    std::string path_;
+    int fd_;
+    std::vector<std::byte> buffer_;
+    std::size_t buffered_ = 0;
+    std::uint64_t record_count_ = 0;
 };
 
 }  // namespace hft::capture

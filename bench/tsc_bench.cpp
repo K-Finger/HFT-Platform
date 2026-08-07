@@ -17,7 +17,7 @@ BENCHMARK(BM_Rdtsc);
 void BM_HistogramRecord(benchmark::State& state)
 {
     hft::time::LatencyHistogram histogram;
-    std::uint64_t               cycles = 1;
+    std::uint64_t cycles = 1;
 
     for (auto _ : state)
     {

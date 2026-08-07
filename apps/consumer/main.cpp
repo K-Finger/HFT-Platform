@@ -16,12 +16,11 @@
 namespace
 {
 
-constexpr int           kConsumerCore     = 3;
-constexpr int           kRealtimePriority = 80;
-constexpr std::uint64_t kReportInterval   = 50;
+constexpr int kConsumerCore = 3;
+constexpr int kRealtimePriority = 80;
+constexpr std::uint64_t kReportInterval = 50;
 
-void report(const hft::book::SnapshotBook&     book,
-            const hft::time::LatencyHistogram& pop_cycles,
+void report(const hft::book::SnapshotBook& book, const hft::time::LatencyHistogram& pop_cycles,
             const hft::time::LatencyHistogram& apply_cycles)
 {
     std::printf("\napplied=%llu stale=%llu crossed=%llu trades=%llu filled_quotes=%llu\n",
@@ -49,10 +48,10 @@ int main()
 
         hft::ipc::SpscRing* ring = hft::ipc::open_shared_ring();
 
-        hft::book::SnapshotBook     book(hft::book::kUsdtPairScale);
+        hft::book::SnapshotBook book(hft::book::kUsdtPairScale);
         hft::time::LatencyHistogram pop_cycles;
         hft::time::LatencyHistogram apply_cycles;
-        hft::Message                msg{};
+        hft::Message msg{};
 
         while (true)
         {

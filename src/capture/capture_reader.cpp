@@ -18,7 +18,9 @@ namespace
 
 std::size_t file_size(int fd, const std::string& path)
 {
-    struct stat info{};
+    struct stat info
+    {
+    };
     if (fstat(fd, &info) == -1)
         throw std::system_error(errno, std::generic_category(), "fstat failed for " + path);
 
@@ -88,11 +90,11 @@ void CaptureReader::validate()
                                  std::to_string(kFormatVersion));
 
     const std::byte* cursor = base_ + sizeof(FileHeader);
-    const std::byte* limit  = base_ + size_bytes_;
+    const std::byte* limit = base_ + size_bytes_;
 
     while (cursor != limit)
     {
-        const std::size_t offset    = static_cast<std::size_t>(cursor - base_);
+        const std::size_t offset = static_cast<std::size_t>(cursor - base_);
         const std::size_t remaining = static_cast<std::size_t>(limit - cursor);
 
         if (remaining < sizeof(RecordHeader))
@@ -101,7 +103,7 @@ void CaptureReader::validate()
                                      std::to_string(sizeof(RecordHeader)) + " bytes, " +
                                      std::to_string(remaining) + " remain");
 
-        const auto*       record = reinterpret_cast<const RecordHeader*>(cursor);
+        const auto* record = reinterpret_cast<const RecordHeader*>(cursor);
         const std::size_t stride = record_stride(record->payload_size);
         if (remaining < stride)
             throw std::runtime_error(path_ + " truncated: record at offset " +

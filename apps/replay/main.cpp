@@ -19,7 +19,7 @@
 namespace
 {
 
-constexpr int kReplayCore       = 2;
+constexpr int kReplayCore = 2;
 constexpr int kRealtimePriority = 80;
 
 }  // namespace
@@ -38,10 +38,10 @@ int main(int argc, char** argv)
         hft::sys::request_realtime_priority(kRealtimePriority);
 
         const hft::capture::CaptureReader reader(argv[1]);
-        hft::ipc::SpscRing*               ring = hft::ipc::create_shared_ring();
+        hft::ipc::SpscRing* ring = hft::ipc::create_shared_ring();
 
         hft::time::LatencyHistogram histogram;
-        std::uint64_t              dropped = 0;
+        std::uint64_t dropped = 0;
 
         hft::Message msg{};
 
