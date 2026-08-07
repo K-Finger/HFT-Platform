@@ -43,13 +43,15 @@ int main(int argc, char** argv)
         hft::time::LatencyHistogram histogram;
         std::uint64_t              dropped = 0;
 
+        hft::Message msg{};
+
         const std::uint64_t started_ns = hft::time::now_ns();
         for (const hft::capture::CaptureRecord& record : reader)
         {
             const std::uint64_t start = hft::time::rdtsc();
 
-            hft::Message msg = hft::feed::parse_book_ticker(record.payload);
-            msg.timestamp    = record.timestamp_ns;  // keep the original receive time
+            hft::feed::parse_book_ticker(record.payload, msg);
+            msg.timestamp = record.timestamp_ns;  // keep the original receive time
             if (!ring->push(msg))
                 dropped++;
 

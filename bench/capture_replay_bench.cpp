@@ -41,10 +41,14 @@ void BM_ReplayParse(benchmark::State& state)
 {
     const hft::capture::CaptureReader reader(capture_path());
 
+    hft::Message msg{};
     for (auto _ : state)
     {
         for (const hft::capture::CaptureRecord& record : reader)
-            benchmark::DoNotOptimize(hft::feed::parse_book_ticker(record.payload));
+        {
+            hft::feed::parse_book_ticker(record.payload, msg);
+            benchmark::DoNotOptimize(msg);
+        }
     }
     state.SetItemsProcessed(state.iterations() * static_cast<std::int64_t>(reader.record_count()));
 }
@@ -57,13 +61,14 @@ void BM_ReplayParseAndPush(benchmark::State& state)
     const hft::capture::CaptureReader reader(capture_path());
     hft::ipc::SpscRing                ring{};
     hft::Message                      out{};
+    hft::Message                      msg{};
 
     for (auto _ : state)
     {
         for (const hft::capture::CaptureRecord& record : reader)
         {
-            hft::Message msg = hft::feed::parse_book_ticker(record.payload);
-            msg.timestamp    = record.timestamp_ns;
+            hft::feed::parse_book_ticker(record.payload, msg);
+            msg.timestamp = record.timestamp_ns;
             benchmark::DoNotOptimize(ring.push(msg));
             benchmark::DoNotOptimize(ring.pop(out));
         }

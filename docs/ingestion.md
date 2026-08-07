@@ -64,19 +64,27 @@ to the exchange.
 ## The loop
 
 ```cpp
+hft::Message msg{};
+
 while (true)
 {
     const std::string&  frame       = feed.read();
     const std::uint64_t received_ns = hft::time::now_ns();
 
-    hft::Message msg = hft::feed::parse_book_ticker(frame.c_str());
-    msg.timestamp    = received_ns;
+    hft::feed::parse_book_ticker(frame.c_str(), msg);
+    msg.timestamp = received_ns;
 
     if (!ring->push(msg))
         std::fprintf(stderr, "ring full, dropped update_id=%llu\n",
                      static_cast<unsigned long long>(msg.update_id));
 }
 ```
+
+The parser fills a caller-owned `Message` rather than returning one. `Message` is
+aligned to a cache line, the ABI only guarantees the stack 16-byte aligned, and
+returning an over-aligned type by value makes the compiler emit an aligned vector
+store into a slot it did not align. A named `Message` gets its alignment honoured,
+so the object is hoisted out of the loop and reused.
 
 The stamp is taken before the parse, so the timestamp measures arrival and not
 parse cost. Comparing `timestamp` against the consumer's own `now_ns` gives the

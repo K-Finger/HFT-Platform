@@ -35,13 +35,15 @@ int main()
         feed.connect();
         std::printf("connected to %s%s, streaming into %s\n", kHost, kTarget, hft::ipc::kRingName);
 
+        hft::Message msg{};
+
         while (true)
         {
             const std::string&  frame       = feed.read();
             const std::uint64_t received_ns = hft::time::now_ns();  // stamp arrival, not parse cost
 
-            hft::Message msg = hft::feed::parse_book_ticker(frame.c_str());
-            msg.timestamp    = received_ns;
+            hft::feed::parse_book_ticker(frame.c_str(), msg);
+            msg.timestamp = received_ns;
 
             if (!ring->push(msg))
                 std::fprintf(stderr, "ring full, dropped update_id=%llu\n",
