@@ -36,6 +36,44 @@ jobs:
       - name: Run tests
         run: ctest --test-dir build --build-config ${{ matrix.build_type }} --output-on-failure
 
+  sanitize:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - name: address+undefined
+            flags: address,undefined
+          - name: thread
+            flags: thread
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libboost-dev libssl-dev
+
+      # Debug, not Release: sanitizer instrumentation and -march=native/LTO don't mix,
+      # and Release only applies those flags via hft_apply_target_options anyway.
+      - name: Configure CMake
+        run: >
+          cmake -B build
+          -DCMAKE_BUILD_TYPE=Debug
+          -DHFT_BUILD_BENCH=OFF
+          -DHFT_SANITIZE=${{ matrix.flags }}
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+          TSAN_OPTIONS: halt_on_error=1:second_deadlock_stack=1
+        run: ctest --test-dir build --output-on-failure
+
   format:
     runs-on: ubuntu-latest
 

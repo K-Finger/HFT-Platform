@@ -15,6 +15,16 @@ option(HFT_BUILD_APPS "Build the ingestion and consumer executables" ${HFT_TOP_L
 option(HFT_BUILD_TESTS "Build the unit tests" ${HFT_TOP_LEVEL})
 option(HFT_BUILD_BENCH "Build the microbenchmarks" ${HFT_TOP_LEVEL})
 
+# Comma-separated sanitizer list, e.g. "address,undefined" or "thread". Applied
+# to every target, including fetched dependencies, so instrumentation stays
+# consistent across the binary. ASan/UBSan and TSan are mutually exclusive, so
+# CI runs them as separate jobs rather than one combined build.
+set(HFT_SANITIZE "" CACHE STRING "Sanitizers to build with (comma-separated)")
+if(HFT_SANITIZE)
+    add_compile_options(-fsanitize=${HFT_SANITIZE} -fno-omit-frame-pointer -fno-sanitize-recover=all)
+    add_link_options(-fsanitize=${HFT_SANITIZE})
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
