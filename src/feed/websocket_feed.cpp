@@ -41,8 +41,7 @@ void WebSocketFeed::connect()
     tls_stream.handshake(ssl::stream_base::client);
 
     websocket_.set_option(websocket::stream_base::decorator(
-        [](websocket::request_type& request)
-        {
+        [](websocket::request_type& request) {
             request.set(http::field::user_agent,
                         std::string("binance-data-feed/") + kVersionString);
         }));
