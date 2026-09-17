@@ -1,8 +1,11 @@
 #include "hft/feed/websocket_feed.hpp"
 
+#include "hft/core/version.hpp"
+
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
+#include <string>
 #include <utility>
 
 namespace beast = boost::beast;
@@ -38,8 +41,10 @@ void WebSocketFeed::connect()
     tls_stream.handshake(ssl::stream_base::client);
 
     websocket_.set_option(websocket::stream_base::decorator(
-        [](websocket::request_type& request)
-        { request.set(http::field::user_agent, "hft-platform/0.1"); }));
+        [](websocket::request_type& request) {
+            request.set(http::field::user_agent,
+                        std::string("binance-data-feed/") + kVersionString);
+        }));
     websocket_.set_option(websocket::permessage_deflate{});
 
     websocket_.handshake(host_, target_);

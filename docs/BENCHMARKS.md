@@ -59,6 +59,12 @@ The run below is indicative only: it is a WSL2 kernel with no huge pages
 reserved, no isolated core and the governor left alone. Treat it as a floor for
 relative comparison, not as a number to quote.
 
+WSL2 is a VM, not a bare-metal host, so this gap is not just an unfinished
+step: there is no `cpufreq` sysfs and no `cpupower` to lock the clock, and
+`isolcpus` is a boot parameter WSL2 does not expose. Reserving huge pages
+still works there (`sudo sysctl -w vm.nr_hugepages`), but the clock and core
+isolation do not. A number worth quoting needs a real Linux host.
+
 - CPU, kernel, compiler: i9-13900H, WSL2 5.15, GCC 13.3, `-O3 -march=native` + LTO
 - Huge pages reserved, core pinned to: none, unpinned
 - `BM_Rdtsc`: 4.95 ns

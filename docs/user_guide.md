@@ -24,8 +24,8 @@ GoogleTest and Google Benchmark download automatically, and only when
 1. Clone with submodules.
 
    ```bash
-   git clone --recurse-submodules https://github.com/K-Finger/HFT-Platform.git
-   cd HFT-Platform
+   git clone --recurse-submodules https://github.com/K-Finger/binance-data-feed.git
+   cd binance-data-feed
    ```
 
 2. Configure. Release adds `-O3 -march=native` and link-time optimisation, which
@@ -113,7 +113,7 @@ rm -f /dev/shm/hft_ring
 Embed the source tree:
 
 ```cmake
-add_subdirectory(HFT-Platform)
+add_subdirectory(binance-data-feed)
 target_link_libraries(my_strategy PRIVATE hft::ipc)
 ```
 
