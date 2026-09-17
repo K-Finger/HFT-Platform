@@ -42,7 +42,10 @@ void WebSocketFeed::connect()
 
     websocket_.set_option(websocket::stream_base::decorator(
         [](websocket::request_type& request)
-        { request.set(http::field::user_agent, std::string("binance-data-feed/") + kVersionString); }));
+        {
+            request.set(http::field::user_agent,
+                        std::string("binance-data-feed/") + kVersionString);
+        }));
     websocket_.set_option(websocket::permessage_deflate{});
 
     websocket_.handshake(host_, target_);
