@@ -2,32 +2,18 @@
 
 [![CI](https://github.com/K-Finger/binance-data-feed/actions/workflows/ci.yml/badge.svg)](https://github.com/K-Finger/binance-data-feed/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 
-A C++20 pipeline for low-latency market data on Linux: exchange websocket in, shared-memory ring out, order book on the read side. Every module is a separate CMake target, so a consumer can take the ring without the feed, or the whole pipeline.
+Binance `bookTicker` over websocket, decoded into a lock-free shared-memory ring, applied to a live order book on the other side. C++20, Linux only.
 
-## Contents
+## Quick Start
 
-- Lock-free SPSC ring in huge-page shared memory, cursors on separate cache lines
-- Zero-copy Binance `bookTicker` parsing straight into a cache-line aligned POD
-- Capture and replay, so a latency regression is reproducible against fixed input
-- Snapshot-driven order book with top of book, spread and size-weighted microprice
-- Core pinning and `SCHED_FIFO` that throw instead of running unpinned and lying about the numbers
-- TSC timing and a power-of-two latency histogram cheap enough to leave in the hot loop
+### Prerequisites
 
-## Architecture
+- Linux, CMake 3.20+, a C++20 compiler
+- Boost and OpenSSL headers
+- `CAP_SYS_NICE` or root, to run the binaries at real-time priority
 
-```
-exchange ──► hft::feed ──► hft::ipc ──► consumer ──► (planned) storage path
-             TLS websocket    /dev/shm ring   order book     Rust daemon, Kafka,
-             in-place parse   2MB huge pages   histogram      TimescaleDB, TCA
-```
-
-The ring is the seam. Upstream of it, everything runs single-threaded per core
-and is measured in nanoseconds. Downstream of it, a consumer can allocate, log,
-or fall behind — a slow consumer only fills the ring, it never stalls ingestion.
-
-## Build
+### Install
 
 ```sh
 sudo apt-get install -y cmake g++ libboost-dev libssl-dev
@@ -37,117 +23,43 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 
-## Run
+## Configuration
+
+No env vars. Configuration is CMake flags at build time:
+
+- `HFT_BUILD_APPS` — build the ingestion/consumer/recorder/replay binaries. On by default.
+- `HFT_BUILD_TESTS` — build the test suite. On by default.
+- `HFT_BUILD_BENCH` — build the microbenchmarks. Off by default.
+- `HFT_SANITIZE` — sanitizers to build with, e.g. `address,undefined` or `thread`.
+
+Core IDs are compile-time constants, not runtime config: `kIngestionCore` and `kConsumerCore` in `apps/*/main.cpp`. Set them to cores on your machine before running.
+
+## Usage
+
+Run the pipeline, one process per terminal:
 
 ```sh
-sudo ./build/apps/ingestion   # websocket -> /dev/shm ring
-sudo ./build/apps/consumer    # ring -> order book, latency histogram
+sudo ./build/apps/ingestion   # connects to Binance, writes into /dev/shm
+sudo ./build/apps/consumer    # drains the ring, updates the book, prints the BBO
 ```
 
-Host tuning — huge pages, isolated cores — is in [docs/user_guide.md](docs/user_guide.md).
-
-## Use
+Read the ring from your own process:
 
 ```cpp
 #include "hft/ipc/shared_memory.hpp"
-#include "hft/time/clock.hpp"
 
-hft::ipc::SpscRing* ring = hft::ipc::create_shared_ring();
-
-hft::Message msg{};
-msg.bid_price = 63501.10;
-msg.ask_price = 63502.45;
-msg.timestamp = hft::time::now_ns();
-
-if (!ring->push(msg))
-    /* ring is full, the consumer is falling behind */;
-```
-
-```cpp
 hft::ipc::SpscRing* ring = hft::ipc::open_shared_ring();
 
 hft::Message msg{};
 while (!ring->pop(msg))
     __builtin_ia32_pause();
+
+// msg.bid_price, msg.ask_price, msg.timestamp are ready here
 ```
 
-## Modules
-
-| Target | Provides | Depends on |
-|---|---|---|
-| `hft::core` | `Message` POD, clocks, core pinning, `SCHED_FIFO` | pthreads |
-| `hft::ipc` | `SpscRing`, huge-page shared memory mapping | `hft::core`, librt |
-| `hft::capture` | Capture writer, mmapped reader | `hft::core` |
-| `hft::book` | Snapshot-driven book, top of book, tick scale | `hft::core`, vendored order book |
-| `hft::feed` | Websocket client, `bookTicker` parser | `hft::core`, Boost, OpenSSL |
-
-## Integrate
+Link against one module instead of the whole tree:
 
 ```cmake
 add_subdirectory(binance-data-feed)
-target_link_libraries(your_app PRIVATE hft::ipc hft::feed)
-```
-
-Or install and use `find_package`:
-
-```sh
-cmake --install build --prefix /usr/local
-```
-
-```cmake
-find_package(hft REQUIRED)
 target_link_libraries(your_app PRIVATE hft::ipc)
 ```
-
-## Testing
-
-40 GoogleTest cases across six binaries, one per module, so a failure points at
-a single component instead of the whole tree.
-
-```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
-ctest --test-dir build --output-on-failure
-```
-
-CI builds Release and Debug on every push, runs the suite under both, runs it
-again under AddressSanitizer+UndefinedBehaviorSanitizer and separately under
-ThreadSanitizer, and gates on clang-format and clang-tidy with warnings as
-errors.
-
-## Benchmarks
-
-Single core, WSL2, GCC `-O3` — a floor for relative comparison, not a number to
-quote. Numbers worth quoting need huge pages reserved and an isolated, pinned
-core; methodology and how to get there are in [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
-
-| Operation | Latency |
-|---|---|
-| Ring push/pop round trip | 1.9 ns |
-| Parse one `bookTicker` frame | 174 ns |
-| Apply one snapshot to the book | 26 ns |
-
-```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DHFT_BUILD_BENCH=ON
-cmake --build build
-./build/bench/spsc_ring_bench
-```
-
-## Documentation
-
-- [Architecture](docs/ARCHITECTURE.md)
-- [Ingestion](docs/ingestion.md)
-- [Order book](docs/book.md)
-- [Replay](docs/replay.md)
-- [User guide](docs/user_guide.md)
-- [Benchmarks](docs/BENCHMARKS.md)
-
-## References
-
-- [liborderbook](https://github.com/K-Finger/liborderbook) - the matching engine vendored under `lib/order-book`
-- [Binance websocket streams](https://developers.binance.com/docs/binance-spot-api-docs/websocket-streams)
-- [Linux huge pages](https://docs.kernel.org/admin-guide/mm/hugetlbpage.html)
-
-## License
-
-MIT
