@@ -3,181 +3,94 @@
 ## Prerequisites
 
 - Linux with POSIX shared memory and pthreads
-- CMake 3.20 or newer
-- A C++20 compiler (GCC 11+ or Clang 14+)
+- CMake 3.20+, a C++20 compiler (GCC 11+ or Clang 14+)
 - Boost headers and OpenSSL, required only by `hft::feed`
-- `CAP_SYS_NICE` or root, required to run the apps
-- Git submodule `lib/order-book`, required only when building the apps
-
-Install the dependencies on Debian or Ubuntu:
+- `CAP_SYS_NICE` or root, to run the apps
+- Git submodule `lib/order-book`, required only to build the apps
 
 ```bash
 sudo apt-get install -y cmake g++ libboost-dev libssl-dev
 ```
 
-`hft::core` and `hft::ipc` need nothing beyond libc, pthreads and librt.
-GoogleTest and Google Benchmark download automatically, and only when
-`HFT_BUILD_TESTS` or `HFT_BUILD_BENCH` is on.
+`hft::core`/`hft::ipc` need nothing beyond libc, pthreads, librt. GoogleTest
+and Google Benchmark download automatically, only when `HFT_BUILD_TESTS` or
+`HFT_BUILD_BENCH` is on.
 
 ## Build
 
-1. Clone with submodules.
+```bash
+git clone --recurse-submodules https://github.com/K-Finger/binance-data-feed.git
+cd binance-data-feed
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release   # -O3 -march=native + LTO
+cmake --build build
+```
 
-   ```bash
-   git clone --recurse-submodules https://github.com/K-Finger/binance-data-feed.git
-   cd binance-data-feed
-   ```
-
-2. Configure. Release adds `-O3 -march=native` and link-time optimisation, which
-   ties the binaries to the machine that built them.
-
-   ```bash
-   cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-   ```
-
-3. Build.
-
-   ```bash
-   cmake --build build
-   ```
-
-Turn parts of the tree off with `-DHFT_BUILD_APPS=OFF`,
-`-DHFT_BUILD_TESTS=OFF` or `-DHFT_BUILD_BENCH=OFF`. All three default to `ON` at
-top level and `OFF` when the project is embedded in another build.
+Toggle parts with `-DHFT_BUILD_APPS=OFF`, `-DHFT_BUILD_TESTS=OFF`,
+`-DHFT_BUILD_BENCH=OFF` — all `ON` by default at top level, `OFF` when
+embedded in another build.
 
 ## Tune the host
 
-Skip this and the apps still run. The latency targets do not hold without it.
+Skip this and the apps still run; the latency targets just won't hold.
 
-1. Reserve huge pages. The ring maps 2MB pages when they are available.
+```bash
+sudo sysctl -w vm.nr_hugepages=64      # ring maps 2MB pages when available
+grep Huge /proc/meminfo                # HugePages_Free must be non-zero
+lscpu --extended=CPU,CORE,SOCKET       # check topology before pinning
+sudo cpupower frequency-set --governor performance
+```
 
-   ```bash
-   sudo sysctl -w vm.nr_hugepages=64
-   grep Huge /proc/meminfo
-   ```
-
-   `HugePages_Free` must be non-zero.
-
-2. Inspect the topology. The producer pins to core 2 and the consumer to core 3,
-   set by `kIngestionCore` and `kConsumerCore` in `apps/`. Keep the two off the
-   same hyperthread pair.
-
-   ```bash
-   lscpu --extended=CPU,CORE,SOCKET
-   ```
-
-3. Hand those cores to the apps by isolating them from the scheduler. Add to the
-   kernel command line and reboot.
-
-   ```
-   isolcpus=2,3 nohz_full=2,3 rcu_nocbs=2,3
-   ```
-
-4. Pin the clock speed so cycle counts stay comparable.
-
-   ```bash
-   sudo cpupower frequency-set --governor performance
-   ```
+Producer pins to core 2, consumer to core 3 (`kIngestionCore`/`kConsumerCore`
+in `apps/`) — keep both off the same hyperthread pair, and isolate them from
+the scheduler via the kernel command line: `isolcpus=2,3 nohz_full=2,3
+rcu_nocbs=2,3`.
 
 ## Run
 
-1. Start the producer first. It creates the shared memory object.
-
-   ```bash
-   sudo ./build/apps/ingestion
-   ```
-
-2. Start the consumer.
-
-   ```bash
-   sudo ./build/apps/consumer
-   ```
-
-The consumer prints a mid price per message and a latency histogram every 50
-messages.
-
-Grant `CAP_SYS_NICE` to the binaries to drop the `sudo`:
-
 ```bash
-sudo setcap cap_sys_nice+ep ./build/apps/ingestion ./build/apps/consumer
-```
+sudo ./build/apps/ingestion   # creates the shared memory object
+sudo ./build/apps/consumer    # prints mid price + a latency histogram every 50 msgs
 
-The ring outlives both processes. Clear it between runs:
-
-```bash
-rm -f /dev/shm/hft_ring
+sudo setcap cap_sys_nice+ep ./build/apps/ingestion ./build/apps/consumer  # drop the sudo
+rm -f /dev/shm/hft_ring       # clear the ring between runs
 ```
 
 ## Use the library in your own project
-
-Embed the source tree:
 
 ```cmake
 add_subdirectory(binance-data-feed)
 target_link_libraries(my_strategy PRIVATE hft::ipc)
 ```
 
-Or install once and consume the package:
-
-```bash
-cmake --install build --prefix /usr/local
-```
+Or `cmake --install build --prefix /usr/local` and:
 
 ```cmake
 find_package(hft REQUIRED)
 target_link_libraries(my_strategy PRIVATE hft::ipc hft::feed)
 ```
 
-Include headers through their full path, which is also their module:
-
-```cpp
-#include "hft/ipc/shared_memory.hpp"
-#include "hft/sys/affinity.hpp"
-#include "hft/time/tsc.hpp"
-```
-
 ## Read the ring from another language
 
-The ring is a plain memory layout, so anything that can map
-`/dev/shm/hft_ring` can consume it. Reproduce the layout exactly:
-
-- `Message` is four little-endian `f64` (bid price, ask price, bid qty, ask qty),
-  then two `u64` (timestamp ns, update id), padded to 64 bytes.
-- The ring is 1024 message slots, then `tail`, then `head`. Each cursor is a `u64`
-  alone on a 64-byte line.
-- Load `head` with acquire ordering before reading a slot. Store `tail` with
-  release ordering after the copy.
+Mappable from any language that reproduces the layout: `Message` is four
+little-endian `f64` (bid price, ask price, bid qty, ask qty) then two `u64`
+(timestamp ns, update id), padded to 64 bytes. The ring is 1024 slots, then
+`tail`, then `head`, each cursor alone on a 64-byte line. Load `head` with
+acquire ordering before reading a slot; store `tail` with release ordering
+after the copy.
 
 ## Troubleshooting
 
-**`lib/order-book is empty` during configure.** The clone skipped the submodule.
+**`lib/order-book is empty` during configure.** Submodule not fetched: `git
+submodule update --init --recursive`, or build with `-DHFT_BUILD_APPS=OFF`.
 
-```bash
-git submodule update --init --recursive
-```
+**`CAP_SYS_NICE is required`.** Run under `sudo` or grant with `setcap`,
+shown above.
 
-Or configure with `-DHFT_BUILD_APPS=OFF` to build the libraries alone.
+**`shm_open(O_RDWR) failed, the producer must create the ring first`.** Start
+`ingestion` before `consumer`.
 
-**`pthread_setschedparam(SCHED_FIFO, 80) failed, CAP_SYS_NICE is required`.** Run
-under `sudo` or grant the capability with `setcap`, shown above.
+**Consumer prints stale prices on startup.** Previous run left messages in
+the ring: `rm -f /dev/shm/hft_ring` and restart the producer.
 
-**`pthread_setaffinity_np failed for core N`.** The core does not exist or is
-outside the process affinity mask. Check `lscpu` and lower `kIngestionCore` or
-`kConsumerCore`.
-
-**`shm_open(O_RDWR) failed, the producer must create the ring first`.** The
-consumer started before the producer. Start `ingestion` first.
-
-**Consumer prints stale prices on startup.** A previous run left messages in the
-ring. Remove `/dev/shm/hft_ring` and restart the producer.
-
-**`ring full, dropped update_id=...` on the producer.** No consumer is draining,
-or the consumer cannot keep up. Start a consumer, or check that it is pinned to a
-core the scheduler is not oversubscribing.
-
-**Boost or OpenSSL not found during configure.** Install `libboost-dev` and
-`libssl-dev`, or build without the feed module by depending on `hft::ipc` only.
-
-**Latencies look far worse than expected.** Confirm huge pages are actually
-granted (`HugePages_Free` drops after startup), the cores are isolated, and the
-governor is `performance`.
+**Latencies far worse than expected.** Confirm huge pages are granted, cores
+are isolated, and the governor is `performance`.
