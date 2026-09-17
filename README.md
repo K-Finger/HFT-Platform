@@ -3,7 +3,7 @@
 [![CI](https://github.com/K-Finger/binance-data-feed/actions/workflows/ci.yml/badge.svg)](https://github.com/K-Finger/binance-data-feed/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Binance `bookTicker` over websocket, decoded into a lock-free shared-memory ring, applied to a live order book. C++20, Linux only.
+Streams live price data from Binance over a websocket. Writes each update into a lock free ring buffer in shared memory so other processes can read it with almost no delay. A separate consumer process reads that ring buffer and builds a live order book from it.
 
 ## Quick Start
 
